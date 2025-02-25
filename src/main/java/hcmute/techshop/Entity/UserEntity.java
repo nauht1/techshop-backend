@@ -32,12 +32,12 @@ public class UserEntity {
     private String firstname;
     private String lastname;
     private String phone;
-    private Boolean gender; // true: Male, false: Female
+    private boolean gender; // true: Male, false: Female
 
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    private Boolean isActive = true;
+    private boolean isActive = true;
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt = LocalDateTime.now();
 

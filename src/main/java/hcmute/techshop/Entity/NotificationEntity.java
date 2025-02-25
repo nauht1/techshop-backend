@@ -24,7 +24,7 @@ public class NotificationEntity {
 
     private String title;
     private String message;
-    private Boolean isRead;
+    private boolean isRead;
 
     @Enumerated(EnumType.STRING)
     private NotificationType type;

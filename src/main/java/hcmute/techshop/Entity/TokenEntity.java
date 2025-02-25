@@ -1,9 +1,8 @@
 package hcmute.techshop.Entity;
 
+import hcmute.techshop.Enum.TokenType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -22,7 +21,12 @@ public class TokenEntity {
     private UserEntity user;
 
     private String token;
-    private String tokenType;
-    private Boolean expired;
+
+    @Enumerated(EnumType.STRING)
+    private TokenType tokenType;
+
+    private boolean expired;
+    private boolean revoked;
     private LocalDateTime createdAt;
+
 }

@@ -19,6 +19,7 @@ public class ProductEntity {
 
     private Double salePrice;
     private Integer stock;
+    private boolean isActive = true;
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)

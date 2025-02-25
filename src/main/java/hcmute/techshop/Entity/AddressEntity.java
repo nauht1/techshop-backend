@@ -23,5 +23,5 @@ public class AddressEntity {
     private String ward;
     private String district;
     private String province;
-    private Boolean isDefault;
+    private boolean isDefault;
 }

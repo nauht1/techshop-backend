@@ -1,13 +1,12 @@
 package hcmute.techshop.Config;
 
-import hcmute.techshop.Repository.TokenRepository;
-import hcmute.techshop.Service.impl.JwtService;
+import hcmute.techshop.Repository.Auth.TokenRepository;
+import hcmute.techshop.Service.Auth.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;

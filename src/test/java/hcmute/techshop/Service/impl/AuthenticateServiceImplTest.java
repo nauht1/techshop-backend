@@ -1,13 +1,15 @@
 package hcmute.techshop.Service.impl;
 
-import hcmute.techshop.Entity.UserEntity;
+import hcmute.techshop.Entity.Auth.UserEntity;
 import hcmute.techshop.Enum.Role;
-import hcmute.techshop.Model.Authentication.AuthRequest;
-import hcmute.techshop.Model.Authentication.AuthResponse;
-import hcmute.techshop.Model.Authentication.RegisterDTO;
-import hcmute.techshop.Model.Authentication.RegisterResponse;
-import hcmute.techshop.Repository.TokenRepository;
-import hcmute.techshop.Repository.UserRepository;
+import hcmute.techshop.Model.Auth.AuthRequest;
+import hcmute.techshop.Model.Auth.AuthResponse;
+import hcmute.techshop.Model.Auth.RegisterDTO;
+import hcmute.techshop.Model.Auth.RegisterResponse;
+import hcmute.techshop.Repository.Auth.TokenRepository;
+import hcmute.techshop.Repository.Auth.UserRepository;
+import hcmute.techshop.Service.Auth.AuthenticateServiceImpl;
+import hcmute.techshop.Service.Auth.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

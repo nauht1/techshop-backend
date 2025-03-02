@@ -29,4 +29,6 @@ public class ProductCommentEntity {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user; // 1 User có nhiều Comments
+
+    private boolean isActive = true;
 }

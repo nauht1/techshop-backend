@@ -35,4 +35,6 @@ public class WarrantyEntity {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private LocalDateTime updatedAt;
+
+    private boolean isActive = true;
 }

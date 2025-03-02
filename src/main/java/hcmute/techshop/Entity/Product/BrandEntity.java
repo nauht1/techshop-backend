@@ -23,6 +23,7 @@ public class BrandEntity {
 
     private String country;
     private String brandImg;
+    private boolean isActive = true;
 
     @OneToMany(mappedBy = "brand", fetch = FetchType.LAZY)
     private List<ProductEntity> products = new ArrayList<>(); // 1 Brand có nhiều Products

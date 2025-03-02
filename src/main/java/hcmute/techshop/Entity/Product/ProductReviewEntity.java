@@ -29,5 +29,6 @@ public class ProductReviewEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user; // 1 User có nhiều Reviews
 
+    private boolean isActive = true;
     private LocalDateTime createdAt;
 }

@@ -18,4 +18,5 @@ public class ShippingMethodEntity {
     private String name;
     private Double costPerKm;
     private Float speed;
+    private boolean isActive = true;
 }

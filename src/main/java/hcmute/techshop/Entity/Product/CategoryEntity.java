@@ -25,6 +25,8 @@ public class CategoryEntity {
     @JoinColumn(name = "parent_id")
     private CategoryEntity parentCategory;
 
+    private boolean isActive = true;
+
     @OneToMany(mappedBy = "parentCategory", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<CategoryEntity> subCategories = new ArrayList<>();
 

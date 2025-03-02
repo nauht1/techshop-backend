@@ -23,4 +23,5 @@ public class ProductVariantEntity {
     private String variantName;
     private Double price;
     private Integer stock;
+    private boolean isActive = true;
 }

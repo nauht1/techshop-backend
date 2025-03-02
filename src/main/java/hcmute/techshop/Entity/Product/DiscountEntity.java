@@ -29,4 +29,5 @@ public class DiscountEntity {
     @OneToMany(mappedBy = "discount", fetch = FetchType.LAZY)
     private List<OrderEntity> orders = new ArrayList<>();
 
+    private boolean isActive = true;
 }

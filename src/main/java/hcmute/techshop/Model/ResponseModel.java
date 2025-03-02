@@ -8,8 +8,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class ResponseModel {
-    private boolean status;
+    private boolean success;
     private String message;
     private Object body;
 }
 
+/*
+* {
+  "success": true,
+  "message": "Get data successfully",
+  "data": {
+    "id": 1,
+    "name": "iPhone 15",
+    "price": 25000000
+  }
+}
+* */

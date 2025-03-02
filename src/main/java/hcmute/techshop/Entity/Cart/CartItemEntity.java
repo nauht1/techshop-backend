@@ -25,4 +25,6 @@ public class CartItemEntity {
     private ProductEntity product;
 
     private Integer quantity;
+
+    private boolean isChecked;
 }

@@ -21,7 +21,12 @@ public class CategoryEntity {
     @Column(nullable = false, unique = true)
     private String name;
 
-    private String categoryImg;
+    @ManyToOne
+    @JoinColumn(name = "parent_id")
+    private CategoryEntity parentCategory;
+
+    @OneToMany(mappedBy = "parentCategory", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<CategoryEntity> subCategories = new ArrayList<>();
 
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     private List<ProductEntity> products = new ArrayList<>(); // 1 Category có nhiều Products

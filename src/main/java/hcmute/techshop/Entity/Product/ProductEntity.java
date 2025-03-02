@@ -1,8 +1,14 @@
 package hcmute.techshop.Entity.Product;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
 @Table(name = "products")
 public class ProductEntity {
     @Id

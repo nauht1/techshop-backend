@@ -53,7 +53,7 @@ public class AuthenticateServiceImpl implements IAuthenticateService {
                 .username(registerDTO.getUsername())
                 .isActive(false)
                 .code(verificationCode)
-                .role(Role.CUSTOMER)
+                .role(Role.ROLE_CUSTOMER)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();

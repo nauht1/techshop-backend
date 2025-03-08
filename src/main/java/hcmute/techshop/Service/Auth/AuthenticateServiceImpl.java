@@ -11,6 +11,7 @@ import hcmute.techshop.Model.Auth.RegisterDTO;
 import hcmute.techshop.Model.Auth.RegisterResponse;
 import hcmute.techshop.Repository.Auth.TokenRepository;
 import hcmute.techshop.Repository.Auth.UserRepository;
+import hcmute.techshop.Service.Email.EmailServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ public class AuthenticateServiceImpl implements IAuthenticateService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final TokenRepository tokenRepository;
+    private final EmailServiceImpl emailService;
 
     @Override
     public RegisterResponse register(RegisterDTO registerDTO) {
@@ -56,8 +58,10 @@ public class AuthenticateServiceImpl implements IAuthenticateService {
                 .role(Role.ROLE_CUSTOMER)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
+                .checkCode(false)
                 .build();
 
+        emailService.sendMailRegister(registerDTO.getEmail(), verificationCode);
         var savedUser = userRepository.save(user);
 
         return RegisterResponse.builder()

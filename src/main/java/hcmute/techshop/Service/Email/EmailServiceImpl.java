@@ -1,23 +1,25 @@
 package hcmute.techshop.Service.Email;
 
-import com.nimbusds.jose.util.IOUtils;
-import hcmute.techshop.Exception.BadRequestException;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+import com.nimbusds.jose.util.IOUtils;
+
+import hcmute.techshop.Exception.BadRequestException;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 
 @Service
 public class EmailServiceImpl implements IEmailService{
 
-    @Value("${spring.mail.username}")
+    @Value("spring.mail.username")
     private String fromMail;
 
     private final JavaMailSender javaMailSender;
@@ -30,7 +32,7 @@ public class EmailServiceImpl implements IEmailService{
         try {
             ClassPathResource resource = new ClassPathResource("templates/SendMailRegisterFile.html");
             InputStream inputStream = resource.getInputStream();
-            String htmlContent = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+            String htmlContent = IOUtils.readInputStreamToString(inputStream, StandardCharsets.UTF_8);
 
             htmlContent = htmlContent.replace("{{code}}", code);
 

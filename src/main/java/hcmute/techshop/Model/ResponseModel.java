@@ -1,12 +1,14 @@
 package hcmute.techshop.Model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Builder
 public class ResponseModel {
     private boolean success;
     private String message;

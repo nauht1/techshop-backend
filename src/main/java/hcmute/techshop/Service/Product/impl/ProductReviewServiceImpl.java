@@ -59,7 +59,6 @@ public class ProductReviewServiceImpl implements ProductReviewService {
         review.setComment(request.getComment());
         review.setActive(true);
         review.setCreatedAt(LocalDateTime.now());
-        review.setUpdatedAt(LocalDateTime.now());
         
         // Lưu vào database
         review = productReviewRepository.save(review);
@@ -88,7 +87,6 @@ public class ProductReviewServiceImpl implements ProductReviewService {
         // Cập nhật thông tin đánh giá
         review.setRating(request.getRating());
         review.setComment(request.getComment());
-        review.setUpdatedAt(LocalDateTime.now());
         
         // Lưu vào database
         review = productReviewRepository.save(review);
@@ -116,7 +114,6 @@ public class ProductReviewServiceImpl implements ProductReviewService {
         
         // Đánh dấu là không còn hoạt động (soft delete)
         review.setActive(false);
-        review.setUpdatedAt(LocalDateTime.now());
         productReviewRepository.save(review);
         return true;
     }
@@ -188,7 +185,6 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
         // Khôi phục đánh giá
         review.setActive(true);
-        review.setUpdatedAt(LocalDateTime.now());
         productReviewRepository.save(review);
         return true;
     }

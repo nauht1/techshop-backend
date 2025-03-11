@@ -23,7 +23,7 @@ public class GlobalExceptionHandler {
     // lỗi chung (code: 500)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ResponseModel> handleGeneralException(Exception ex) {
-        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong in server");
+        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong in server: " + ex.getMessage());
     }
 
     // hàm hỗ trợ format response

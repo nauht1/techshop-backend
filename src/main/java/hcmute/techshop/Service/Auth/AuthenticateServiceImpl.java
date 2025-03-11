@@ -151,4 +151,17 @@ public class AuthenticateServiceImpl implements IAuthenticateService {
             }
         }
     }
+
+    @Override
+    public void VerifiedCode(String email, String code) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Cannot found user in system!!!"));
+
+        if(user.getCode().equals(code)) {
+            user.setCheckCode(true);
+            this.userRepository.save(user);
+        } else {
+            throw new RuntimeException("Your code provided does not match");
+        }
+    }
 }

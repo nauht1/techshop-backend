@@ -16,5 +16,5 @@ public interface IAuthenticateService {
     void saveUserToken(UserEntity user, String jwtToken);
     void revokeAllUserTokens(UserEntity user);
     void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException;
-
+    void VerifiedCode(String email, String code);
 }

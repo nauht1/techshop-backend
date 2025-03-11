@@ -51,6 +51,7 @@ public class UserEntity implements UserDetails {
     private LocalDateTime updatedAt = LocalDateTime.now();
 
     private boolean checkCode;
+
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private CartEntity cart;
 

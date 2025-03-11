@@ -3,13 +3,12 @@ package hcmute.techshop.Controller.Auth;
 import hcmute.techshop.Model.Auth.AuthRequest;
 import hcmute.techshop.Model.Auth.RegisterDTO;
 import hcmute.techshop.Model.Auth.RegisterResponse;
+import hcmute.techshop.Model.Auth.VerifyCodeRequest;
 import hcmute.techshop.Service.Auth.AuthenticateServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -25,5 +24,11 @@ public class AuthenticateController {
     @PostMapping("/login")
     public ResponseEntity<?> authenticate(@RequestBody AuthRequest authRequest) {
         return ResponseEntity.ok(authenticateService.authenticate(authRequest));
+    }
+
+    @PutMapping("/check-code")
+    public ResponseEntity<?> checkCode(@RequestBody VerifyCodeRequest request) {
+        authenticateService.VerifiedCode(request.getEmail(), request.getCode());
+        return ResponseEntity.ok(HttpStatus.OK);
     }
 }

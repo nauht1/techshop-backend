@@ -28,7 +28,6 @@ public class AuthenticateController {
 
     @PutMapping("/check-code")
     public ResponseEntity<?> checkCode(@RequestBody VerifyCodeRequest request) {
-        authenticateService.VerifiedCode(request.getEmail(), request.getCode());
-        return ResponseEntity.ok(HttpStatus.OK);
+        return ResponseEntity.ok(authenticateService.VerifiedCode(request.getEmail(), request.getCode()));
     }
 }

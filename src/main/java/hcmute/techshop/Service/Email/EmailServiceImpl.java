@@ -17,7 +17,7 @@ import java.nio.charset.StandardCharsets;
 @Service
 public class EmailServiceImpl implements IEmailService{
 
-    @Value("spring.mail.username")
+    @Value("${spring.mail.username}")
     private String fromMail;
 
     private final JavaMailSender javaMailSender;
@@ -30,7 +30,7 @@ public class EmailServiceImpl implements IEmailService{
         try {
             ClassPathResource resource = new ClassPathResource("templates/SendMailRegisterFile.html");
             InputStream inputStream = resource.getInputStream();
-            String htmlContent = IOUtils.readInputStreamToString(inputStream, StandardCharsets.UTF_8);
+            String htmlContent = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
 
             htmlContent = htmlContent.replace("{{code}}", code);
 

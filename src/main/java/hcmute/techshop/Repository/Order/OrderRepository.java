@@ -1,4 +1,15 @@
 package hcmute.techshop.Repository.Order;
 
-public interface OrderRepository {
+import hcmute.techshop.Entity.Auth.UserEntity;
+import hcmute.techshop.Entity.Order.OrderEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface OrderRepository extends JpaRepository<OrderEntity, Integer> {
+    
+    List<OrderEntity> findByUserAndStatusAndIsActive(UserEntity user, String status, boolean isActive);
+    
 }

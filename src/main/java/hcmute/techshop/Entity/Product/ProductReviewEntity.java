@@ -1,34 +1,33 @@
 package hcmute.techshop.Entity.Product;
 
 import hcmute.techshop.Entity.Auth.UserEntity;
+import hcmute.techshop.Entity.Product.ProductEntity;
+
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
 
 @Entity
 @Table(name = "product_reviews")
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class ProductReviewEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private Integer rating;
+    @ManyToOne
+    private UserEntity user;
+
+    @ManyToOne
+    private ProductEntity product;
+
+    private int rating;
     private String comment;
-
-    @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false)
-    private ProductEntity product; // 1 Product có nhiều Reviews
-
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity user; // 1 User có nhiều Reviews
-
-    private boolean isActive = true;
+    private boolean isActive;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

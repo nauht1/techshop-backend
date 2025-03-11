@@ -107,7 +107,7 @@ public class AuthenticateServiceImplTest {
                 .password("encodedPassword")
                 .username("testUser")
                 .isActive(true)
-                .role(Role.CUSTOMER)
+                .role(Role.ROLE_CUSTOMER)
                 .createdAt(LocalDateTime.now())
                 .build();
 
@@ -136,7 +136,7 @@ public class AuthenticateServiceImplTest {
                 .password("encodedPassword")
                 .username("testUser")
                 .isActive(false) // Chưa kích hoạt
-                .role(Role.CUSTOMER)
+                .role(Role.ROLE_CUSTOMER)
                 .createdAt(LocalDateTime.now())
                 .build();
 

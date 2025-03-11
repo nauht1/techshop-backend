@@ -5,10 +5,7 @@ import hcmute.techshop.Entity.Auth.TokenEntity;
 import hcmute.techshop.Entity.Auth.UserEntity;
 import hcmute.techshop.Enum.Role;
 import hcmute.techshop.Enum.TokenType;
-import hcmute.techshop.Model.Auth.AuthRequest;
-import hcmute.techshop.Model.Auth.AuthResponse;
-import hcmute.techshop.Model.Auth.RegisterDTO;
-import hcmute.techshop.Model.Auth.RegisterResponse;
+import hcmute.techshop.Model.Auth.*;
 import hcmute.techshop.Repository.Auth.TokenRepository;
 import hcmute.techshop.Repository.Auth.UserRepository;
 import hcmute.techshop.Service.Email.EmailServiceImpl;
@@ -153,13 +150,16 @@ public class AuthenticateServiceImpl implements IAuthenticateService {
     }
 
     @Override
-    public void VerifiedCode(String email, String code) {
+    public VerifyResponse VerifiedCode(String email, String code) {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Cannot found user in system!!!"));
 
         if(user.getCode().equals(code)) {
             user.setCheckCode(true);
             this.userRepository.save(user);
+            return VerifyResponse.builder()
+                    .message("Verified code is successful")
+                    .build();
         } else {
             throw new RuntimeException("Your code provided does not match");
         }

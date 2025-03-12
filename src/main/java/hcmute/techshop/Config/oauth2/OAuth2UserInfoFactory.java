@@ -9,6 +9,9 @@ public class OAuth2UserInfoFactory {
         if (registrationId.equalsIgnoreCase(AuthProvider.google.toString())) {
             return new GoogleOAuth2ServiceUserInfo(attributes);
         }
+        else if(registrationId.equalsIgnoreCase(AuthProvider.github.toString())) {
+            return new GitHubOAuth2ServiceUserInfo(attributes);
+        }
         else {
             throw new RuntimeException("Sorry! Login with " + registrationId + " is not supported yet.");
         }

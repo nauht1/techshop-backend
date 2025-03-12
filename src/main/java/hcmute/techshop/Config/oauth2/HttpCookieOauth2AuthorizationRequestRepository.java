@@ -1,4 +1,4 @@
-package hcmute.techshop.Config;
+package hcmute.techshop.Config.oauth2;
 
 
 import hcmute.techshop.Util.CookieUtils;

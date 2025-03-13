@@ -5,6 +5,7 @@ import hcmute.techshop.Entity.Auth.TokenEntity;
 import hcmute.techshop.Entity.Auth.UserEntity;
 import hcmute.techshop.Enum.Role;
 import hcmute.techshop.Enum.TokenType;
+import hcmute.techshop.Exception.BadRequestException;
 import hcmute.techshop.Model.Auth.*;
 import hcmute.techshop.Repository.Auth.TokenRepository;
 import hcmute.techshop.Repository.Auth.UserRepository;
@@ -169,9 +170,9 @@ public class AuthenticateServiceImpl implements IAuthenticateService {
     public ForgotPasswordResponse forgotPassword(String email) {
         var user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
+        System.out.println(user);
         var existingToken = tokenRepository.findValidTokenByUser(user.getId(), TokenType.FORGOT_PASSWORD);
-
+        System.out.println("Asdklasjdioasdhjioasdjioasjd");
         if (existingToken.isPresent()) {
             emailService.sendMailForgotPassword(user.getEmail(), existingToken.get().getToken());
             return ForgotPasswordResponse.builder()
@@ -187,8 +188,9 @@ public class AuthenticateServiceImpl implements IAuthenticateService {
                 .expired(false)
                 .revoked(false)
                 .build();
-        tokenRepository.deleteOldTokens(user.getId(), TokenType.FORGOT_PASSWORD);
-
+        if(!existingToken.isEmpty()) {
+            tokenRepository.deleteOldTokens(user.getId(), TokenType.FORGOT_PASSWORD);
+        }
         tokenRepository.save(token);
 
         emailService.sendMailForgotPassword(user.getEmail(), jwtToken);
@@ -196,5 +198,23 @@ public class AuthenticateServiceImpl implements IAuthenticateService {
                 .message("A password reset link has been sent to your email.")
                 .build();
 
+    }
+
+    @Override
+    public ResetPasswrodResponse resetPasswordResponse(String password, String token) {
+        var tokenEntity = tokenRepository.findValidTokenByTokenAndType(token, TokenType.FORGOT_PASSWORD)
+                .orElseThrow(() -> new BadRequestException("Invalid or expired token"));
+        if (tokenEntity.isExpired() || tokenEntity.isRevoked()) {
+            throw new RuntimeException("Token has expired or is revoked");
+        }
+        var user = tokenEntity.getUser();
+        user.setPassword(passwordEncoder.encode(password));
+        userRepository.save(user);
+
+        tokenRepository.delete(tokenEntity);
+        return ResetPasswrodResponse
+                .builder()
+                .message("Updated password successfully")
+                .build();
     }
 }

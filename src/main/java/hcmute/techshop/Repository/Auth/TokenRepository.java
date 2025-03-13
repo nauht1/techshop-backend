@@ -28,5 +28,8 @@ public interface TokenRepository extends JpaRepository<TokenEntity, Integer> {
     @Modifying
     @Query("DELETE FROM TokenEntity t WHERE t.user.id = :userId AND t.tokenType = :tokenType")
     void deleteOldTokens(@Param("userId") Integer userId, @Param("tokenType") TokenType tokenType);
+    @Query("SELECT t FROM TokenEntity t WHERE t.token = :token AND t.tokenType = :tokenType AND t.expired = false AND t.revoked = false")
+    Optional<TokenEntity> findValidTokenByTokenAndType(@Param("token") String token, @Param("tokenType") TokenType tokenType);
+
 
 }

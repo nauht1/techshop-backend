@@ -1,6 +1,7 @@
 package hcmute.techshop.Service.Email;
 
 import com.nimbusds.jose.util.IOUtils;
+import hcmute.techshop.Exception.BadRequestException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,7 +42,7 @@ public class EmailServiceImpl implements IEmailService{
             helper.setText(htmlContent, true);
             javaMailSender.send(mimeMessage);
         } catch (IOException | MessagingException e) {
-            throw new RuntimeException(e);
+            throw new BadRequestException(e.getMessage());
         }
     }
 
@@ -62,7 +63,7 @@ public class EmailServiceImpl implements IEmailService{
             helper.setText(htmlContent, true);
             javaMailSender.send(mimeMessage);
         }catch (IOException | MessagingException e) {
-            throw new RuntimeException(e);
+            throw new BadRequestException(e.getMessage());
         }
     }
 }

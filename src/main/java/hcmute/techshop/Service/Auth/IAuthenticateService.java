@@ -1,10 +1,7 @@
 package hcmute.techshop.Service.Auth;
 
 import hcmute.techshop.Entity.Auth.UserEntity;
-import hcmute.techshop.Model.Auth.AuthRequest;
-import hcmute.techshop.Model.Auth.AuthResponse;
-import hcmute.techshop.Model.Auth.RegisterDTO;
-import hcmute.techshop.Model.Auth.RegisterResponse;
+import hcmute.techshop.Model.Auth.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -16,5 +13,7 @@ public interface IAuthenticateService {
     void saveUserToken(UserEntity user, String jwtToken);
     void revokeAllUserTokens(UserEntity user);
     void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException;
-
+    VerifyResponse VerifiedCode(String email, String code);
+    ForgotPasswordResponse forgotPassword(String email);
+    ResetPasswrodResponse resetPasswordResponse(String email, String token);
 }

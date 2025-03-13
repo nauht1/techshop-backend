@@ -9,7 +9,7 @@ import java.util.List;
 
 @Repository
 public interface OrderRepository extends JpaRepository<OrderEntity, Integer> {
-    
-    List<OrderEntity> findByUserAndStatusAndIsActive(UserEntity user, String status, boolean isActive);
-    
+    List<OrderEntity> findByUserId(Integer userId);
+
+    List<OrderEntity> findByUserAndStatusAndIsActive(UserEntity user, String đãHoànThành, boolean b);
 }

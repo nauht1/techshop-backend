@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "addresses")
 @Data
@@ -25,4 +27,9 @@ public class AddressEntity {
     private String district;
     private String province;
     private boolean isDefault;
+
+
+    @ManyToOne
+    @JoinColumn(name = "shipping_method_id")
+    private ShippingMethodEntity shippingMethod;
 }

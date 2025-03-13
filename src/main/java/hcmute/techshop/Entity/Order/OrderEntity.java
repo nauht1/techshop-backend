@@ -38,9 +38,26 @@ public class OrderEntity {
     @JoinColumn(name = "discount_id")
     private DiscountEntity discount;
 
-    @OneToMany(mappedBy = "order", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "order", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<OrderItemEntity> orderItems = new ArrayList<>();
 
     private LocalDateTime createdAt = LocalDateTime.now();
-    private boolean isActive = true;
+
+    private Double shippingFee;
+
+    public Double calculateShippingFee() {
+        // Tính phí vận chuyển tạm thời dựa trên shippingMethod
+        if (shippingMethod == null) {
+            return 5.0; // Default fee
+        }
+
+        switch (shippingMethod.getMethodName().toLowerCase()) {
+            case "express":
+                return 10.0;
+            case "same-day":
+                return 20.0;
+            default:
+                return 5.0;
+        }
+    }
 }

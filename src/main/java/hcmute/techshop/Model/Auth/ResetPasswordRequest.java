@@ -1,2 +1,4 @@
-package hcmute.techshop.Model.Auth;public class ResetPasswordRequest {
+package hcmute.techshop.Model.Auth;
+
+public class ResetPasswordRequest {
 }

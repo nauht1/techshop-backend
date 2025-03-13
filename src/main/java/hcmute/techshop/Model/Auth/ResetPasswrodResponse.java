@@ -1,2 +1,4 @@
-package hcmute.techshop.Model.Auth;public class ResetPasswrodResponse {
+package hcmute.techshop.Model.Auth;
+
+public class ResetPasswrodResponse {
 }

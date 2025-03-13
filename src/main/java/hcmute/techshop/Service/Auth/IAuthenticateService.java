@@ -14,4 +14,5 @@ public interface IAuthenticateService {
     void revokeAllUserTokens(UserEntity user);
     void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException;
     VerifyResponse VerifiedCode(String email, String code);
+    ForgotPasswordResponse forgotPassword(String email);
 }

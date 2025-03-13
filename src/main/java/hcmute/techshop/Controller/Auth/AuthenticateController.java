@@ -1,9 +1,6 @@
 package hcmute.techshop.Controller.Auth;
 
-import hcmute.techshop.Model.Auth.AuthRequest;
-import hcmute.techshop.Model.Auth.RegisterDTO;
-import hcmute.techshop.Model.Auth.RegisterResponse;
-import hcmute.techshop.Model.Auth.VerifyCodeRequest;
+import hcmute.techshop.Model.Auth.*;
 import hcmute.techshop.Service.Auth.AuthenticateServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,5 +26,10 @@ public class AuthenticateController {
     @PutMapping("/check-code")
     public ResponseEntity<?> checkCode(@RequestBody VerifyCodeRequest request) {
         return ResponseEntity.ok(authenticateService.VerifiedCode(request.getEmail(), request.getCode()));
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest) {
+        return ResponseEntity.ok(authenticateService.forgotPassword(forgotPasswordRequest.getEmail()));
     }
 }

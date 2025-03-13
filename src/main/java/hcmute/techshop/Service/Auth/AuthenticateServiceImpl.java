@@ -164,4 +164,37 @@ public class AuthenticateServiceImpl implements IAuthenticateService {
             throw new RuntimeException("Your code provided does not match");
         }
     }
+
+    @Override
+    public ForgotPasswordResponse forgotPassword(String email) {
+        var user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        var existingToken = tokenRepository.findValidTokenByUser(user.getId(), TokenType.FORGOT_PASSWORD);
+
+        if (existingToken.isPresent()) {
+            emailService.sendMailForgotPassword(user.getEmail(), existingToken.get().getToken());
+            return ForgotPasswordResponse.builder()
+                    .message("A reset link has already been sent. Please check your email.")
+                    .build();
+        }
+
+        var jwtToken = jwtService.generateToken(user);
+        var token = TokenEntity.builder()
+                .user(user)
+                .token(jwtToken)
+                .tokenType(TokenType.FORGOT_PASSWORD)
+                .expired(false)
+                .revoked(false)
+                .build();
+        tokenRepository.deleteOldTokens(user.getId(), TokenType.FORGOT_PASSWORD);
+
+        tokenRepository.save(token);
+
+        emailService.sendMailForgotPassword(user.getEmail(), jwtToken);
+        return ForgotPasswordResponse.builder()
+                .message("A password reset link has been sent to your email.")
+                .build();
+
+    }
 }

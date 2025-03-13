@@ -44,4 +44,25 @@ public class EmailServiceImpl implements IEmailService{
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public void sendMailForgotPassword(String toEmail, String token) {
+        try {
+            ClassPathResource resource = new ClassPathResource("templates/SendMailForgotPassword.html");
+            InputStream inputStream = resource.getInputStream();
+            String htmlContent = IOUtils.readInputStreamToString(inputStream, StandardCharsets.UTF_8);
+
+            htmlContent = htmlContent.replace("YOUR_TOKEN", token);
+
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
+            helper.setFrom(fromMail);
+            helper.setTo(toEmail);
+            helper.setSubject("Forgot password");
+            helper.setText(htmlContent, true);
+            javaMailSender.send(mimeMessage);
+        }catch (IOException | MessagingException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

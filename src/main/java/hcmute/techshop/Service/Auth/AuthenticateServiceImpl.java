@@ -157,6 +157,7 @@ public class AuthenticateServiceImpl implements IAuthenticateService {
 
         if(user.getCode().equals(code)) {
             user.setCheckCode(true);
+            user.setActive(true);
             this.userRepository.save(user);
             return VerifyResponse.builder()
                     .message("Verified code is successful")

@@ -25,5 +25,5 @@ public class OrderItemEntity {
     private ProductEntity product;
 
     private Integer quantity;
-    private Double price;
+    private Double unitPrice;
 }

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/orders")
+@RequestMapping("/api/v1/orders")
 @RequiredArgsConstructor
 public class OrderController {
     private final IOrderService orderService;
@@ -26,7 +26,7 @@ public class OrderController {
 }
 
 @RestController
-@RequestMapping("/api/admin/orders")
+@RequestMapping("/api/v1/admin/orders")
 @RequiredArgsConstructor
 class AdminOrderController {
     private final IOrderService orderService;

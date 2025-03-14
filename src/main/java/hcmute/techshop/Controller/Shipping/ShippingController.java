@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/shipping-methods")
+@RequestMapping("/api/v1/shipping-methods")
 @RequiredArgsConstructor
 public class ShippingController {
     private final IShippingService shippingMethodService;
@@ -21,7 +21,7 @@ public class ShippingController {
 }
 
 @RestController
-@RequestMapping("/api/admin/shipping-methods")
+@RequestMapping("/api/v1/admin/shipping-methods")
 @RequiredArgsConstructor
 class AdminShippingController {
     private final IShippingService shippingMethodService;

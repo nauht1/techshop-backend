@@ -2,6 +2,7 @@ package hcmute.techshop.Entity.Auth;
 
 import hcmute.techshop.Entity.Shipping.AddressEntity;
 import hcmute.techshop.Entity.Cart.CartEntity;
+import hcmute.techshop.Enum.AuthProvider;
 import hcmute.techshop.Enum.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -28,19 +29,22 @@ public class UserEntity implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String username;
 
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
     private String password;
 
     private String firstname;
     private String lastname;
     private String phone;
     private boolean gender; // true: Male, false: Female
+    private String providerId;
+
+    @Enumerated(EnumType.STRING)
+    private AuthProvider provider;
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -51,6 +55,7 @@ public class UserEntity implements UserDetails {
     private LocalDateTime updatedAt = LocalDateTime.now();
 
     private boolean checkCode;
+
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private CartEntity cart;
 

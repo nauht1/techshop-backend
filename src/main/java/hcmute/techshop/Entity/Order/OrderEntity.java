@@ -42,7 +42,7 @@ public class OrderEntity {
     private List<OrderItemEntity> orderItems = new ArrayList<>();
 
     private LocalDateTime createdAt = LocalDateTime.now();
-
+    private boolean isActive = true;
     private Double shippingFee;
 
     public Double calculateShippingFee() {

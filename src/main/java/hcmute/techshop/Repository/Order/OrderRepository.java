@@ -11,5 +11,5 @@ import java.util.List;
 public interface OrderRepository extends JpaRepository<OrderEntity, Integer> {
     List<OrderEntity> findByUserId(Integer userId);
 
-    List<OrderEntity> findByUserAndStatusAndIsActive(UserEntity user, String đãHoànThành, boolean b);
+    List<OrderEntity> findByUserAndStatusAndIsActive(UserEntity user, String status, boolean isActive);
 }

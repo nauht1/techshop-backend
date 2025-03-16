@@ -4,7 +4,7 @@ import hcmute.techshop.Model.ApiResponse;
 import hcmute.techshop.Model.Product.AddReviewRequest;
 import hcmute.techshop.Model.Product.ProductReviewModel;
 import hcmute.techshop.Model.Product.UpdateReviewRequest;
-import hcmute.techshop.Service.Product.ProductReviewService;
+import hcmute.techshop.Service.Product.review.IProductReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/reviews")
+@RequestMapping("/api/v1/reviews")
 @RequiredArgsConstructor
 public class ProductReviewController {
 
-    private final ProductReviewService productReviewService;
+    private final IProductReviewService productReviewService;
 
     // Thêm đánh giá sản phẩm (yêu cầu đăng nhập và đã mua sản phẩm)
     @PostMapping
@@ -74,45 +74,26 @@ public class ProductReviewController {
         }
     }
 
-    // Xóa ẩn đánh giá sản phẩm chính user đó
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Boolean>> deleteReview(
+    // Bật/tắt trạng thái đánh giá sản phẩm của chính user đó
+    @PutMapping("/{id}/toggle")
+    public ResponseEntity<ApiResponse<Boolean>> toggleReviewStatus(
             @PathVariable Integer id,
             Authentication authentication) {
         try {
-            boolean result = productReviewService.deleteReview(id, authentication.getName());
-            return ResponseEntity.ok(new ApiResponse<>(true, "Đã ẩn đánh giá thành công", result));
+            boolean isActive = productReviewService.toggleReviewStatus(id, authentication.getName());
+            String message = isActive ? "Đã hiện đánh giá thành công" : "Đã ẩn đánh giá thành công";
+            return ResponseEntity.ok(new ApiResponse<>(true, message, isActive));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(false, e.getMessage(), false));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, e.getMessage(), false));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse<>(false, "Lỗi khi ẩn đánh giá: " + e.getMessage(), false));
-        }
-    }
-    
-    // Khôi phục đánh giá đã ẩn chính user đó
-    @PostMapping("/{id}/restore")
-    public ResponseEntity<ApiResponse<Boolean>> restoreReview(
-            @PathVariable Integer id,
-            Authentication authentication) {
-        try {
-            boolean result = productReviewService.restoreReview(id, authentication.getName());
-            return ResponseEntity.ok(new ApiResponse<>(true, "Đã khôi phục đánh giá thành công", result));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, e.getMessage(), false));
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, e.getMessage(), false));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse<>(false, "Lỗi khi khôi phục đánh giá: " + e.getMessage(), false));
+                    .body(new ApiResponse<>(false, "Lỗi khi thay đổi trạng thái đánh giá: " + e.getMessage(), false));
         }
     }
 
     // Lấy danh sách đánh giá của một sản phẩm (bao gồm cả đánh giá đã ẩn của chính mình)
-    // user có thể xem được đánh giá của chính mình và đánh giá đã ẩn của chính mình
-    // admin có thể xem tất cả đánh giá của sản phẩm kể cả đã ẩn
     @GetMapping("/product/{productId}")
     public ResponseEntity<ApiResponse<List<ProductReviewModel>>> getProductReviews(
             @PathVariable Integer productId,
@@ -129,8 +110,6 @@ public class ProductReviewController {
     }
 
     // Lấy thông tin một đánh giá cụ thể (bao gồm cả đánh giá đã ẩn của chính mình)
-    // user có thể xem được đánh giá của chính mình và đánh giá đã ẩn của chính mình
-    // admin có thể xem tất cả đánh giá của sản phẩm kể cả đã ẩn
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductReviewModel>> getReviewById(
             @PathVariable Integer id,
@@ -163,4 +142,4 @@ public class ProductReviewController {
                     .body(new ApiResponse<>(false, "Lỗi khi xóa vĩnh viễn đánh giá: " + e.getMessage(), false));
         }
     }
-} 
+}

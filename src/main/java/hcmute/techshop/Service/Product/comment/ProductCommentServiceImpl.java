@@ -1,4 +1,4 @@
-package hcmute.techshop.Service.Product.impl;
+package hcmute.techshop.Service.Product.comment;
 
 import hcmute.techshop.Entity.Auth.UserEntity;
 import hcmute.techshop.Entity.Product.ProductCommentEntity;
@@ -10,7 +10,6 @@ import hcmute.techshop.Model.Product.UpdateCommentRequest;
 import hcmute.techshop.Repository.Auth.UserRepository;
 import hcmute.techshop.Repository.Product.ProductCommentRepository;
 import hcmute.techshop.Repository.Product.ProductRepository;
-import hcmute.techshop.Service.Product.ProductCommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +19,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class ProductCommentServiceImpl implements ProductCommentService {
+public class ProductCommentServiceImpl implements IProductCommentService {
 
     private final ProductCommentRepository productCommentRepository;
     private final ProductRepository productRepository;
@@ -43,7 +42,6 @@ public class ProductCommentServiceImpl implements ProductCommentService {
         comment.setComment(request.getComment());
         comment.setActive(true);
         comment.setCreatedAt(LocalDateTime.now());
-        comment.setUpdatedAt(LocalDateTime.now());
         
         // Lưu vào database
         comment = productCommentRepository.save(comment);
@@ -60,7 +58,7 @@ public class ProductCommentServiceImpl implements ProductCommentService {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Người dùng không tồn tại"));
         
-        // Lấy thông tin bình luận
+        // Lấy thông tin bình luận (không cần lọc theo isActive)
         ProductCommentEntity comment = productCommentRepository.findById(request.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Bình luận không tồn tại"));
         
@@ -83,7 +81,7 @@ public class ProductCommentServiceImpl implements ProductCommentService {
     }
 
     @Override
-    public boolean deleteComment(Integer id, String email) {
+    public boolean toggleCommentStatus(Integer id, String email) {
         // Lấy thông tin người dùng
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Người dùng không tồn tại"));
@@ -92,16 +90,17 @@ public class ProductCommentServiceImpl implements ProductCommentService {
         ProductCommentEntity comment = productCommentRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Bình luận không tồn tại"));
         
-        // Kiểm tra quyền xóa (chỉ chủ sở hữu mới được xóa)
+        // Kiểm tra quyền cập nhật (chỉ chủ sở hữu mới được cập nhật)
         if (!comment.getUser().getId().equals(user.getId())) {
-            throw new IllegalStateException("Bạn không có quyền xóa bình luận này");
+            throw new IllegalStateException("Bạn không có quyền thay đổi trạng thái bình luận này");
         }
         
-        // Đánh dấu là không còn hoạt động (soft delete)
-        comment.setActive(false);
+        // Đảo ngược trạng thái kích hoạt
+        comment.setActive(!comment.isActive());
         comment.setUpdatedAt(LocalDateTime.now());
         productCommentRepository.save(comment);
-        return true;
+        
+        return comment.isActive();
     }
 
     @Override
@@ -128,6 +127,18 @@ public class ProductCommentServiceImpl implements ProductCommentService {
     }
 
     @Override
+    public List<ProductCommentModel> getAllProductCommentsForAdmin(Integer productId) {
+        ProductEntity product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("Sản phẩm không tồn tại"));
+        
+        List<ProductCommentEntity> comments = productCommentRepository.findByProduct(product);
+        
+        return comments.stream()
+                .map(comment -> mapToModel(comment))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public ProductCommentModel getCommentById(Integer id, String email) {
         // Lấy thông tin người dùng
         UserEntity user = userRepository.findByEmail(email)
@@ -139,9 +150,9 @@ public class ProductCommentServiceImpl implements ProductCommentService {
 
         // Kiểm tra xem người dùng có phải là Admin không
         boolean isAdmin = user.getRole().equals(Role.ROLE_ADMIN);
-        boolean isOwner =   comment.getUser().getId().equals(user.getId());
+        boolean isOwner = comment.getUser().getId().equals(user.getId());
 
-        // Logic quyền truy cập mới:
+        // Logic quyền truy cập:
         // Admin có thể xem tất cả
         // Người dùng thường chỉ có thể xem bình luận không bị ẩn HOẶC bình luận do chính họ tạo (kể cả khi đã bị ẩn)
         if (!isAdmin && !(comment.isActive() || isOwner)) {
@@ -152,28 +163,6 @@ public class ProductCommentServiceImpl implements ProductCommentService {
         ProductCommentModel model = mapToModel(comment);
         model.setOwner(isOwner);
         return model;
-    }
-
-    @Override
-    public boolean restoreComment(Integer id, String email) {
-        // Lấy thông tin người dùng
-        UserEntity user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Người dùng không tồn tại"));
-
-        // Lấy thông tin bình luận
-        ProductCommentEntity comment = productCommentRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Bình luận không tồn tại"));
-
-        // Kiểm tra quyền khôi phục (chỉ chủ sở hữu mới được khôi phục)
-        if (!comment.getUser().getId().equals(user.getId())) {
-            throw new IllegalStateException("Bạn không có quyền khôi phục bình luận này");
-        }
-
-        // Khôi phục bình luận
-        comment.setActive(true);
-        comment.setUpdatedAt(LocalDateTime.now());
-        productCommentRepository.save(comment);
-        return true;
     }
 
     @Override
@@ -190,6 +179,18 @@ public class ProductCommentServiceImpl implements ProductCommentService {
         
         productCommentRepository.delete(comment);
         return true;
+    }
+    
+    @Override
+    public boolean adminToggleCommentStatus(Integer id) {
+        ProductCommentEntity comment = productCommentRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Bình luận không tồn tại"));
+                
+        // Đảo ngược trạng thái kích hoạt
+        comment.setActive(!comment.isActive());
+        comment.setUpdatedAt(LocalDateTime.now());
+        productCommentRepository.save(comment);
+        return comment.isActive();
     }
     
     /**
@@ -210,4 +211,4 @@ public class ProductCommentServiceImpl implements ProductCommentService {
         model.setProductName(entity.getProduct().getName());
         return model;
     }
-} 
+}

@@ -4,7 +4,7 @@ import hcmute.techshop.Model.ApiResponse;
 import hcmute.techshop.Model.Product.AddCommentRequest;
 import hcmute.techshop.Model.Product.ProductCommentModel;
 import hcmute.techshop.Model.Product.UpdateCommentRequest;
-import hcmute.techshop.Service.Product.ProductCommentService;
+import hcmute.techshop.Service.Product.comment.IProductCommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,14 +15,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/comments")
+@RequestMapping("/api/v1/comments")
 @RequiredArgsConstructor
 @Validated
 public class ProductCommentController {
 
-    private final ProductCommentService productCommentService;
+    private final IProductCommentService productCommentService;
     
-    // Thêm bình luận chính user đó
+    // Thêm bình luận chính user đó không cần mua sản phẩm có thể thêm nhiều bình luận
     @PostMapping
     public ResponseEntity<ApiResponse<ProductCommentModel>> addComment(
             @RequestBody AddCommentRequest request,
@@ -50,7 +50,7 @@ public class ProductCommentController {
         }
     }
 
-    // Cập nhật bình luận chính user đó
+    // Cập nhật bình luận chính user đó (bao gồm cả bình luận đã ẩn)
     @PutMapping
     public ResponseEntity<ApiResponse<ProductCommentModel>> updateComment(
             @RequestBody UpdateCommentRequest request,
@@ -78,45 +78,26 @@ public class ProductCommentController {
         }
     }
     
-    // Xóa ẩn bình luận chính user đó
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Boolean>> deleteComment(
+    // Bật/tắt trạng thái bình luận của chính user đó
+    @PutMapping("/{id}/toggle")
+    public ResponseEntity<ApiResponse<Boolean>> toggleCommentStatus(
             @PathVariable Integer id,
             Authentication authentication) {
         try {
-            boolean result = productCommentService.deleteComment(id, authentication.getName());
-            return ResponseEntity.ok(new ApiResponse<>(true, "Đã ẩn bình luận thành công", result));
+            boolean isActive = productCommentService.toggleCommentStatus(id, authentication.getName());
+            String message = isActive ? "Đã hiện bình luận thành công" : "Đã ẩn bình luận thành công";
+            return ResponseEntity.ok(new ApiResponse<>(true, message, isActive));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(false, e.getMessage(), false));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, e.getMessage(), false));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse<>(false, "Lỗi khi ẩn bình luận: " + e.getMessage(), false));
-        }
-    }
-    
-    // Khôi phục bình luận đã ẩn
-    @PostMapping("/{id}/restore")
-    public ResponseEntity<ApiResponse<Boolean>> restoreComment(
-            @PathVariable Integer id,
-            Authentication authentication) {
-        try {
-            boolean result = productCommentService.restoreComment(id, authentication.getName());
-            return ResponseEntity.ok(new ApiResponse<>(true, "Đã khôi phục bình luận thành công", result));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, e.getMessage(), false));
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, e.getMessage(), false));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse<>(false, "Lỗi khi khôi phục bình luận: " + e.getMessage(), false));
+                    .body(new ApiResponse<>(false, "Lỗi khi thay đổi trạng thái bình luận: " + e.getMessage(), false));
         }
     }
     
     // Lấy danh sách bình luận của một sản phẩm (bao gồm cả bình luận đã ẩn của chính mình)
-    // user có thể xem được tất cả bình luận của sản phẩm kể cả đã ẩn
-    // admin có thể xem tất cả bình luận của sản phẩm kể cả đã ẩn
     @GetMapping("/product/{productId}")
     public ResponseEntity<ApiResponse<List<ProductCommentModel>>> getProductComments(
             @PathVariable Integer productId, 
@@ -133,8 +114,6 @@ public class ProductCommentController {
     }
     
    // Lấy thông tin một bình luận cụ thể (bao gồm cả bình luận đã ẩn của chính mình)
-    // user có thể xem được tất cả thông tin bình luận của sản phẩm kể cả đã ẩn
-    // admin có thể xem tất cả thông tin bình luận của sản phẩm kể cả đã ẩn
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductCommentModel>> getCommentById(
             @PathVariable Integer id,
@@ -167,5 +146,4 @@ public class ProductCommentController {
                     .body(new ApiResponse<>(false, "Lỗi khi xóa vĩnh viễn bình luận: " + e.getMessage(), false));
         }
     }
-} 
-
+}

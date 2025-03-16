@@ -12,9 +12,9 @@ import java.util.Optional;
 @Repository
 public interface ProductReviewRepository extends JpaRepository<ProductReviewEntity, Integer> {
     
-    Optional<ProductReviewEntity> findByUserAndProductAndIsActiveTrue(UserEntity user, ProductEntity product);
-    
     List<ProductReviewEntity> findByProduct(ProductEntity product);
 
     List<ProductReviewEntity> findByProductAndUser(ProductEntity product, UserEntity user);
+
+    Optional<ProductReviewEntity> findByUserAndProduct(UserEntity user, ProductEntity product);
 } 

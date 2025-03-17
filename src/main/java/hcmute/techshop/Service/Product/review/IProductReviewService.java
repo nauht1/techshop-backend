@@ -20,7 +20,10 @@ public interface IProductReviewService {
     List<ProductReviewModel> getProductReviews(Integer productId, String username);
     
     // Lấy danh sách tất cả đánh giá của một sản phẩm (dành cho Admin)
-    List<ProductReviewModel> getAllProductReviewsForAdmin(Integer productId);
+    List<ProductReviewModel> getAllProductReviewsForAdmin(Integer productId, String adminEmail);
+
+    //Lấy tất cả danh sách đánh giá tất cả sản phẩm cho admin
+    List<ProductReviewModel> getAllReviewsForAdmin(String adminEmail);
     
     // Lấy thông tin một đánh giá cụ thể (dùng chung cho cả user và admin)
     ProductReviewModel getReviewById(Integer id, String username);
@@ -29,5 +32,5 @@ public interface IProductReviewService {
     boolean permanentDeleteReview(Integer id, String username);
     
     // Admin bật/tắt trạng thái một đánh giá bất kỳ
-    boolean adminToggleReviewStatus(Integer id);
+    boolean adminToggleReviewStatus(Integer id, String adminEmail);
 }

@@ -34,22 +34,23 @@ public class ProductReviewServiceImpl implements IProductReviewService {
         // Lấy thông tin người dùng
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Người dùng không tồn tại"));
-        
+
         // Lấy thông tin sản phẩm
         ProductEntity product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new IllegalArgumentException("Sản phẩm không tồn tại"));
-        
+
         // Kiểm tra xem người dùng đã mua sản phẩm chưa
         if (!hasUserPurchasedProduct(user, product)) {
             throw new IllegalArgumentException("Bạn chưa mua sản phẩm này, không thể đánh giá");
         }
-        
-        // Kiểm tra xem người dùng đã đánh giá sản phẩm này chưa (bao gồm cả đánh giá đã ẩn)
+
+        // Kiểm tra xem người dùng đã đánh giá sản phẩm này chưa (bao gồm cả đánh giá đã
+        // ẩn)
         Optional<ProductReviewEntity> existingReview = productReviewRepository.findByUserAndProduct(user, product);
         if (existingReview.isPresent()) {
             throw new IllegalArgumentException("Bạn đã đánh giá sản phẩm này rồi. Vui lòng cập nhật đánh giá hiện có.");
         }
-        
+
         // Tạo đánh giá mới
         ProductReviewEntity review = new ProductReviewEntity();
         review.setUser(user);
@@ -59,10 +60,10 @@ public class ProductReviewServiceImpl implements IProductReviewService {
         review.setActive(true);
         review.setCreatedAt(LocalDateTime.now());
         review.setUpdatedAt(LocalDateTime.now());
-        
+
         // Lưu vào database
         review = productReviewRepository.save(review);
-        
+
         // Chuyển đổi sang model và trả về
         ProductReviewModel model = mapToModel(review);
         model.setOwner(true);
@@ -74,24 +75,24 @@ public class ProductReviewServiceImpl implements IProductReviewService {
         // Lấy thông tin người dùng
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Người dùng không tồn tại"));
-        
+
         // Lấy thông tin đánh giá (không cần lọc theo isActive)
         ProductReviewEntity review = productReviewRepository.findById(request.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Đánh giá không tồn tại"));
-        
+
         // Kiểm tra quyền cập nhật (chỉ chủ sở hữu mới được cập nhật)
         if (!review.getUser().getId().equals(user.getId())) {
             throw new IllegalStateException("Bạn không có quyền cập nhật đánh giá này");
         }
-        
+
         // Cập nhật thông tin đánh giá
         review.setRating(request.getRating());
         review.setComment(request.getComment());
         review.setUpdatedAt(LocalDateTime.now());
-        
+
         // Lưu vào database
         review = productReviewRepository.save(review);
-        
+
         // Chuyển đổi sang model và trả về
         ProductReviewModel model = mapToModel(review);
         model.setOwner(true);
@@ -103,20 +104,20 @@ public class ProductReviewServiceImpl implements IProductReviewService {
         // Lấy thông tin người dùng
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Người dùng không tồn tại"));
-        
+
         // Lấy thông tin đánh giá
         ProductReviewEntity review = productReviewRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Đánh giá không tồn tại"));
-        
+
         // Kiểm tra quyền cập nhật (chỉ chủ sở hữu mới được cập nhật)
         if (!review.getUser().getId().equals(user.getId())) {
             throw new IllegalStateException("Bạn không có quyền thay đổi trạng thái đánh giá này");
         }
-        
+
         // Đảo ngược trạng thái kích hoạt
         review.setActive(!review.isActive());
         productReviewRepository.save(review);
-        
+
         return review.isActive();
     }
 
@@ -124,17 +125,14 @@ public class ProductReviewServiceImpl implements IProductReviewService {
     public List<ProductReviewModel> getProductReviews(Integer productId, String email) {
         ProductEntity product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("Sản phẩm không tồn tại"));
-        
+
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Người dùng không tồn tại"));
-        
+
         List<ProductReviewEntity> reviews = productReviewRepository.findByProduct(product);
-        
-        // Kiểm tra xem người dùng có phải là Admin không
-        boolean isAdmin = user.getRole().equals(Role.ROLE_ADMIN);
-        
+
         return reviews.stream()
-                .filter(review -> isAdmin || review.isActive() || review.getUser().getId().equals(user.getId()))
+                .filter(review -> review.isActive() || review.getUser().getId().equals(user.getId()))
                 .map(review -> {
                     ProductReviewModel model = mapToModel(review);
                     model.setOwner(review.getUser().getId().equals(user.getId()));
@@ -144,14 +142,26 @@ public class ProductReviewServiceImpl implements IProductReviewService {
     }
 
     @Override
-    public List<ProductReviewModel> getAllProductReviewsForAdmin(Integer productId) {
+    public List<ProductReviewModel> getAllProductReviewsForAdmin(Integer productId, String adminEmail) {
         ProductEntity product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("Sản phẩm không tồn tại"));
+        
+        UserEntity admin = userRepository.findByEmail(adminEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin admin"));
+                
+        // Kiểm tra xem người dùng có vai trò admin không
+        if (!admin.getRole().equals(Role.ROLE_ADMIN)) {
+            throw new IllegalStateException("Bạn không có quyền admin để thực hiện chức năng này");
+        }
         
         List<ProductReviewEntity> reviews = productReviewRepository.findByProduct(product);
         
         return reviews.stream()
-                .map(review -> mapToModel(review))
+                .map(review -> {
+                    ProductReviewModel model = mapToModel(review);
+                    model.setOwner(review.getUser().getId().equals(admin.getId()));
+                    return model;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -171,7 +181,8 @@ public class ProductReviewServiceImpl implements IProductReviewService {
 
         // Logic quyền truy cập:
         // Admin có thể xem tất cả
-        // Người dùng thường chỉ có thể xem đánh giá không bị ẩn HOẶC đánh giá do chính họ tạo (kể cả khi đã bị ẩn)
+        // Người dùng thường chỉ có thể xem đánh giá không bị ẩn HOẶC đánh giá do chính
+        // họ tạo (kể cả khi đã bị ẩn)
         if (!isAdmin && !(review.isActive() || isOwner)) {
             throw new IllegalArgumentException("Bạn không có quyền xem đánh giá này");
         }
@@ -186,51 +197,81 @@ public class ProductReviewServiceImpl implements IProductReviewService {
     public boolean permanentDeleteReview(Integer id, String email) {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Người dùng không tồn tại"));
-                
+
         ProductReviewEntity review = productReviewRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Đánh giá không tồn tại"));
-                
+
         if (!review.getUser().getId().equals(user.getId())) {
             throw new IllegalStateException("Bạn không có quyền xóa vĩnh viễn đánh giá này");
         }
-        
+
         productReviewRepository.delete(review);
         return true;
     }
-    
+
     @Override
-    public boolean adminToggleReviewStatus(Integer id) {
+    public boolean adminToggleReviewStatus(Integer id, String adminEmail) {
+        UserEntity admin = userRepository.findByEmail(adminEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin admin"));
+
+        if (!admin.getRole().equals(Role.ROLE_ADMIN)) {
+            throw new IllegalStateException("Bạn không có quyền admin để thực hiện chức năng này");
+        }
+
         ProductReviewEntity review = productReviewRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Đánh giá không tồn tại"));
-                
+
         // Đảo ngược trạng thái kích hoạt
         review.setActive(!review.isActive());
         productReviewRepository.save(review);
         return review.isActive();
     }
 
+    @Override
+    public List<ProductReviewModel> getAllReviewsForAdmin(String adminEmail) {
+        UserEntity admin = userRepository.findByEmail(adminEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin admin"));
+
+        if (!admin.getRole().equals(Role.ROLE_ADMIN)) {
+            throw new IllegalStateException("Bạn không có quyền admin để thực hiện chức năng này");
+        }
+        List<ProductReviewEntity> reviews = productReviewRepository.findAll();
+        if (reviews.isEmpty()) {
+            throw new IllegalArgumentException("Danh sách đánh giá rỗng");
+        }
+        return reviews.stream()
+                .map(review -> {
+                    ProductReviewModel model = mapToModel(review);
+                    model.setOwner(review.getUser().getId().equals(admin.getId()));
+                    return model;
+                })
+                .collect(Collectors.toList());
+    }
+
     /**
      * Kiểm tra xem người dùng đã mua sản phẩm chưa
-     * @param user Người dùng
+     * 
+     * @param user    Người dùng
      * @param product Sản phẩm
      * @return true nếu người dùng đã mua sản phẩm
      */
     private boolean hasUserPurchasedProduct(UserEntity user, ProductEntity product) {
         // Lấy tất cả đơn hàng của người dùng đã được hoàn thành
         List<OrderEntity> userOrders = orderRepository.findByUserAndStatusAndIsActive(user, "Đã hoàn thành", true);
-        
+
         // Kiểm tra xem có đơn hàng nào chứa sản phẩm này không
         for (OrderEntity order : userOrders) {
             if (order.getOrderItems().stream().anyMatch(item -> item.getProduct().getId().equals(product.getId()))) {
                 return true;
             }
         }
-        
+
         return false;
     }
-    
+
     /**
      * Chuyển đổi từ entity sang model
+     * 
      * @param entity Entity cần chuyển đổi
      * @return Model
      */

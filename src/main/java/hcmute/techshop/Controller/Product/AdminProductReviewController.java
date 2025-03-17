@@ -18,12 +18,28 @@ public class AdminProductReviewController {
 
     private final IProductReviewService productReviewService;
 
+
+     //Lấy tất cả danh sách đánh giá tất cả sản phẩm cho admin
+     @GetMapping("/all")
+     public ResponseEntity<ApiResponse<List<ProductReviewModel>>> getAllReviewsForAdmin(Authentication authentication) {
+         try {
+             List<ProductReviewModel> reviews = productReviewService.getAllReviewsForAdmin(authentication.getName());
+             return ResponseEntity.ok(new ApiResponse<>(true, "Lấy danh sách đánh giá thành công", reviews));    
+         } catch (IllegalArgumentException e) {
+             return ResponseEntity.badRequest().body(new ApiResponse<>(false, e.getMessage(), null));
+         } catch (Exception e) {
+             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                     .body(new ApiResponse<>(false, "Lỗi khi lấy danh sách đánh giá: " + e.getMessage(), null));
+         }
+     }
+
     // Lấy danh sách đánh giá của một sản phẩm (admin có thể xem tất cả đánh giá kể cả bị ẩn)
     @GetMapping("/product/{productId}")
     public ResponseEntity<ApiResponse<List<ProductReviewModel>>> getProductReviews(
-            @PathVariable Integer productId) {
+            @PathVariable Integer productId,
+            Authentication authentication) {
         try {
-            List<ProductReviewModel> reviews = productReviewService.getAllProductReviewsForAdmin(productId);
+            List<ProductReviewModel> reviews = productReviewService.getAllProductReviewsForAdmin(productId, authentication.getName());
             return ResponseEntity.ok(new ApiResponse<>(true, "Lấy danh sách đánh giá thành công", reviews));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(false, e.getMessage(), null));
@@ -52,9 +68,9 @@ public class AdminProductReviewController {
     
     // Admin bật/tắt trạng thái của một đánh giá bất kỳ
     @PutMapping("/{id}/toggle")
-    public ResponseEntity<ApiResponse<Boolean>> toggleReviewStatus(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse<Boolean>> toggleReviewStatus(@PathVariable Integer id, Authentication authentication) {
         try {
-            boolean isActive = productReviewService.adminToggleReviewStatus(id);
+            boolean isActive = productReviewService.adminToggleReviewStatus(id, authentication.getName());
             String message = isActive ? "Đã hiện đánh giá thành công" : "Đã ẩn đánh giá thành công";
             return ResponseEntity.ok(new ApiResponse<>(true, message, isActive));
         } catch (IllegalArgumentException e) {
@@ -64,4 +80,5 @@ public class AdminProductReviewController {
                     .body(new ApiResponse<>(false, "Lỗi khi thay đổi trạng thái đánh giá: " + e.getMessage(), false));
         }
     }
+
 }

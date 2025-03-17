@@ -18,12 +18,27 @@ public class AdminProductCommentController {
 
     private final IProductCommentService productCommentService;
 
+    //Lấy tất cả danh sách bình luận tất cả sản phẩm cho admin
+    @GetMapping("/all")
+    public ResponseEntity<ApiResponse<List<ProductCommentModel>>> getAllCommentsForAdmin(Authentication authentication) {
+        try {
+            List<ProductCommentModel> comments = productCommentService.getAllCommentsForAdmin(authentication.getName());
+            return ResponseEntity.ok(new ApiResponse<>(true, "Lấy danh sách bình luận thành công", comments));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(false, e.getMessage(), null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(false, "Lỗi khi lấy danh sách bình luận: " + e.getMessage(), null));
+        }
+    }
+
     // Lấy danh sách bình luận của một sản phẩm (admin có thể xem tất cả bình luận kể cả bị ẩn)
     @GetMapping("/product/{productId}")
     public ResponseEntity<ApiResponse<List<ProductCommentModel>>> getProductComments(
-            @PathVariable Integer productId) {
+            @PathVariable Integer productId,
+            Authentication authentication) {
         try {
-            List<ProductCommentModel> comments = productCommentService.getAllProductCommentsForAdmin(productId);
+            List<ProductCommentModel> comments = productCommentService.getAllProductCommentsForAdmin(productId, authentication.getName());
             return ResponseEntity.ok(new ApiResponse<>(true, "Lấy danh sách bình luận thành công", comments));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(false, e.getMessage(), null));
@@ -52,9 +67,9 @@ public class AdminProductCommentController {
     
     // Admin bật/tắt trạng thái của một bình luận bất kỳ
     @PutMapping("/{id}/toggle")
-    public ResponseEntity<ApiResponse<Boolean>> toggleCommentStatus(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse<Boolean>> toggleCommentStatus(@PathVariable Integer id, Authentication authentication) {
         try {
-            boolean isActive = productCommentService.adminToggleCommentStatus(id);
+            boolean isActive = productCommentService.adminToggleCommentStatus(id, authentication.getName());
             String message = isActive ? "Đã hiện bình luận thành công" : "Đã ẩn bình luận thành công";
             return ResponseEntity.ok(new ApiResponse<>(true, message, isActive));
         } catch (IllegalArgumentException e) {
@@ -64,4 +79,5 @@ public class AdminProductCommentController {
                     .body(new ApiResponse<>(false, "Lỗi khi thay đổi trạng thái bình luận: " + e.getMessage(), false));
         }
     }
+    
 }

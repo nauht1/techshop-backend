@@ -40,4 +40,36 @@ public class CartController {
         CartResponse updatedCart = cartService.updateCartItem(user, request);
         return ResponseEntity.ok(new ResponseModel(true, "Cập nhật giỏ hàng thành công", updatedCart));
     }
+
+    // New endpoints
+
+    @PutMapping("/select-all")
+    public ResponseEntity<ResponseModel> selectAllItems(@AuthenticationPrincipal UserEntity user) {
+        CartResponse updatedCart = cartService.selectAllItems(user);
+        return ResponseEntity.ok(new ResponseModel(true, "Đã chọn tất cả sản phẩm trong giỏ hàng", updatedCart));
+    }
+
+    @PutMapping("/deselect-all")
+    public ResponseEntity<ResponseModel> deselectAllItems(@AuthenticationPrincipal UserEntity user) {
+        CartResponse updatedCart = cartService.deselectAllItems(user);
+        return ResponseEntity.ok(new ResponseModel(true, "Đã bỏ chọn tất cả sản phẩm trong giỏ hàng", updatedCart));
+    }
+
+    @DeleteMapping("/clear")
+    public ResponseEntity<ResponseModel> clearCart(@AuthenticationPrincipal UserEntity user) {
+        CartResponse updatedCart = cartService.clearCart(user);
+        return ResponseEntity.ok(new ResponseModel(true, "Đã xóa toàn bộ sản phẩm trong giỏ hàng", updatedCart));
+    }
+
+    @PutMapping("/{cartItemId}/increment")
+    public ResponseEntity<ResponseModel> incrementCartItemQuantity(@AuthenticationPrincipal UserEntity user, @PathVariable Integer cartItemId) {
+        CartResponse updatedCart = cartService.incrementCartItemQuantity(user, cartItemId);
+        return ResponseEntity.ok(new ResponseModel(true, "Đã tăng số lượng sản phẩm", updatedCart));
+    }
+
+    @PutMapping("/{cartItemId}/decrement")
+    public ResponseEntity<ResponseModel> decrementCartItemQuantity(@AuthenticationPrincipal UserEntity user, @PathVariable Integer cartItemId) {
+        CartResponse updatedCart = cartService.decrementCartItemQuantity(user, cartItemId);
+        return ResponseEntity.ok(new ResponseModel(true, "Đã giảm số lượng sản phẩm", updatedCart));
+    }
 }

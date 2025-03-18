@@ -10,4 +10,10 @@ public interface ICartService {
     CartResponse getCart(UserEntity user);
     CartResponse removeFromCart(UserEntity user, Integer cartItemId);
     CartResponse updateCartItem(UserEntity user, UpdateCartItemRequest request);
+
+    CartResponse selectAllItems(UserEntity user);
+    CartResponse deselectAllItems(UserEntity user);
+    CartResponse clearCart(UserEntity user);
+    CartResponse incrementCartItemQuantity(UserEntity user, Integer cartItemId);
+    CartResponse decrementCartItemQuantity(UserEntity user, Integer cartItemId);
 }

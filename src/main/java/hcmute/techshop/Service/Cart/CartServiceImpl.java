@@ -114,6 +114,94 @@ public class CartServiceImpl implements ICartService {
         return buildCartResponse(cart);
     }
 
+    @Override
+    @Transactional
+    public CartResponse selectAllItems(UserEntity user) {
+        CartEntity cart = cartRepository.findByUser(user)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giỏ hàng"));
+
+        cart.getCartItems().forEach(item -> item.setChecked(true));
+        cartRepository.save(cart);
+
+        return buildCartResponse(cart);
+    }
+
+    @Override
+    @Transactional
+    public CartResponse deselectAllItems(UserEntity user) {
+        CartEntity cart = cartRepository.findByUser(user)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giỏ hàng"));
+
+        cart.getCartItems().forEach(item -> item.setChecked(false));
+        cartRepository.save(cart);
+
+        return buildCartResponse(cart);
+    }
+
+    @Override
+    @Transactional
+    public CartResponse clearCart(UserEntity user) {
+        CartEntity cart = cartRepository.findByUser(user)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giỏ hàng"));
+
+        // Delete all cart items
+        cartItemRepository.deleteAll(cart.getCartItems());
+        cart.getCartItems().clear();
+        cartRepository.save(cart);
+
+        return buildCartResponse(cart);
+    }
+
+    @Override
+    @Transactional
+    public CartResponse incrementCartItemQuantity(UserEntity user, Integer cartItemId) {
+        CartEntity cart = cartRepository.findByUser(user)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giỏ hàng"));
+
+        CartItemEntity cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sản phẩm trong giỏ hàng"));
+
+        if (!cartItem.getCart().getId().equals(cart.getId())) {
+            throw new IllegalArgumentException("Sản phẩm không thuộc giỏ hàng của người dùng này");
+        }
+
+        // Get product to check stock
+        ProductEntity product = cartItem.getProduct();
+        if (product.getStock() > cartItem.getQuantity()) {
+            cartItem.setQuantity(cartItem.getQuantity() + 1);
+            cartItemRepository.save(cartItem);
+        } else {
+            throw new IllegalArgumentException("Số lượng sản phẩm đã đạt giới hạn tồn kho");
+        }
+
+        return buildCartResponse(cart);
+    }
+
+    @Override
+    @Transactional
+    public CartResponse decrementCartItemQuantity(UserEntity user, Integer cartItemId) {
+        CartEntity cart = cartRepository.findByUser(user)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giỏ hàng"));
+
+        CartItemEntity cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sản phẩm trong giỏ hàng"));
+
+        if (!cartItem.getCart().getId().equals(cart.getId())) {
+            throw new IllegalArgumentException("Sản phẩm không thuộc giỏ hàng của người dùng này");
+        }
+
+        if (cartItem.getQuantity() <= 1) {
+            // Remove item if quantity will be 0
+            cart.getCartItems().remove(cartItem);
+            cartItemRepository.delete(cartItem);
+        } else {
+            cartItem.setQuantity(cartItem.getQuantity() - 1);
+            cartItemRepository.save(cartItem);
+        }
+
+        return buildCartResponse(cart);
+    }
+
     private CartResponse buildCartResponse(CartEntity cart) {
         List<CartItemResponse> itemResponses = cart.getCartItems().stream()
                 .map(item -> {

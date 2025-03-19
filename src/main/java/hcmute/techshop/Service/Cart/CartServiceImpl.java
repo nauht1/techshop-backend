@@ -5,10 +5,7 @@ import hcmute.techshop.Entity.Cart.CartEntity;
 import hcmute.techshop.Entity.Cart.CartItemEntity;
 import hcmute.techshop.Entity.Product.ProductEntity;
 import hcmute.techshop.Exception.ResourceNotFoundException;
-import hcmute.techshop.Model.Cart.AddToCartRequest;
-import hcmute.techshop.Model.Cart.CartItemResponse;
-import hcmute.techshop.Model.Cart.CartResponse;
-import hcmute.techshop.Model.Cart.UpdateCartItemRequest;
+import hcmute.techshop.Model.Cart.*;
 import hcmute.techshop.Repository.Cart.CartItemRepository;
 import hcmute.techshop.Repository.Cart.CartRepository;
 import hcmute.techshop.Repository.Product.ProductRepository;
@@ -231,5 +228,24 @@ public class CartServiceImpl implements ICartService {
                 .items(itemResponses)
                 .totalPrice(totalPrice)
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public CartResponse toggleCartItem(UserEntity user, ToggleCartItemRequest request) {
+        CartEntity cart = cartRepository.findByUser(user)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giỏ hàng"));
+
+        CartItemEntity cartItem = cartItemRepository.findById(request.getCartItemId())
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sản phẩm trong giỏ hàng"));
+
+        if (!cartItem.getCart().getId().equals(cart.getId())) {
+            throw new IllegalArgumentException("Sản phẩm không thuộc giỏ hàng của người dùng này");
+        }
+
+        cartItem.setChecked(request.isChecked());
+        cartItemRepository.save(cartItem);
+
+        return buildCartResponse(cart);
     }
 }

@@ -3,6 +3,7 @@ package hcmute.techshop.Controller.Cart;
 import hcmute.techshop.Entity.Auth.UserEntity;
 import hcmute.techshop.Model.Cart.AddToCartRequest;
 import hcmute.techshop.Model.Cart.CartResponse;
+import hcmute.techshop.Model.Cart.ToggleCartItemRequest;
 import hcmute.techshop.Model.Cart.UpdateCartItemRequest;
 import hcmute.techshop.Model.ResponseModel;
 import hcmute.techshop.Service.Cart.ICartService;
@@ -71,5 +72,16 @@ public class CartController {
     public ResponseEntity<ResponseModel> decrementCartItemQuantity(@AuthenticationPrincipal UserEntity user, @PathVariable Integer cartItemId) {
         CartResponse updatedCart = cartService.decrementCartItemQuantity(user, cartItemId);
         return ResponseEntity.ok(new ResponseModel(true, "Đã giảm số lượng sản phẩm", updatedCart));
+    }
+
+    @PutMapping("/toggle")
+    public ResponseEntity<ResponseModel> toggleCartItem(
+            @AuthenticationPrincipal UserEntity user,
+            @RequestBody ToggleCartItemRequest request) {
+        CartResponse updatedCart = cartService.toggleCartItem(user, request);
+        return ResponseEntity.ok(new ResponseModel(
+                true,
+                "Đã cập nhật trạng thái chọn sản phẩm",
+                updatedCart));
     }
 }

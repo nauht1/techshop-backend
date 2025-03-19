@@ -2,12 +2,12 @@ package hcmute.techshop.Service.Product.ProductAttribute;
 
 import hcmute.techshop.Entity.Product.ProductAttributeEntity;
 import hcmute.techshop.Entity.Product.ProductEntity;
+import hcmute.techshop.Exception.ResourceNotFoundException;
 import hcmute.techshop.Model.Product.ProductAttributeModel;
 import hcmute.techshop.Repository.Product.ProductAttributeRepository;
 import hcmute.techshop.Repository.Product.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.webjars.NotFoundException;
 
 import java.util.List;
 
@@ -25,13 +25,13 @@ public class ProductAttributeImpl implements IProductAttribute {
     @Override
     public ProductAttributeEntity getById(long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Product attribute not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product attribute not found"));
     }
 
     @Override
     public ProductAttributeEntity save(ProductAttributeModel productAttributeModel) {
         ProductEntity product = productRepository.findById(productAttributeModel.getProduct())
-                .orElseThrow(() -> new NotFoundException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
         ProductAttributeEntity newEntity = ProductAttributeEntity.builder()
                 .attName(productAttributeModel.getAttName())
@@ -45,11 +45,11 @@ public class ProductAttributeImpl implements IProductAttribute {
     @Override
     public ProductAttributeEntity update(ProductAttributeModel productAttributeModel) {
         if (productAttributeModel.getId() == null) {
-            throw new NotFoundException("Product attribute not found");
+            throw new ResourceNotFoundException("Product attribute not found");
         }
 
         ProductAttributeEntity updateEntity = repository.findById(productAttributeModel.getId().longValue())
-                .orElseThrow(() -> new NotFoundException("Product attribute not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product attribute not found"));
 
         if (productAttributeModel.getAttName() != null && !productAttributeModel.getAttName().isBlank()) {
             updateEntity.setAttName(productAttributeModel.getAttName());
@@ -59,7 +59,7 @@ public class ProductAttributeImpl implements IProductAttribute {
         }
         if (productAttributeModel.getProduct() != null) {
             ProductEntity product = productRepository.findById(productAttributeModel.getProduct())
-                    .orElseThrow(() -> new NotFoundException("Product not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
             updateEntity.setProduct(product);
         }
 
@@ -69,11 +69,11 @@ public class ProductAttributeImpl implements IProductAttribute {
     @Override
     public ProductAttributeEntity delete(ProductAttributeModel productAttributeModel) {
         if (productAttributeModel.getId() == null) {
-            throw new NotFoundException("Product attribute not found");
+            throw new ResourceNotFoundException("Product attribute not found");
         }
 
         ProductAttributeEntity deleteEntity = repository.findById(productAttributeModel.getId().longValue())
-                .orElseThrow(() -> new NotFoundException("Product attribute not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product attribute not found"));
         repository.delete(deleteEntity);
         return deleteEntity;
     }

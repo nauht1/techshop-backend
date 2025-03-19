@@ -1,12 +1,12 @@
 package hcmute.techshop.Service.Product.ProductVariant;
 
 import hcmute.techshop.Entity.Product.ProductVariantEntity;
+import hcmute.techshop.Exception.ResourceNotFoundException;
 import hcmute.techshop.Model.Product.ProductVariantModel;
 import hcmute.techshop.Repository.Product.ProductRepository;
 import hcmute.techshop.Repository.Product.ProductVariantRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.webjars.NotFoundException;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +24,7 @@ public class ProductVariantServiceImpl implements IProductVariantService {
 
     @Override
     public ProductVariantEntity getById(long id) {
-        return productVariantRepository.findById(id).orElseThrow(() -> new NotFoundException("Product variant not found"));
+        return productVariantRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product variant not found"));
     }
 
     @Override

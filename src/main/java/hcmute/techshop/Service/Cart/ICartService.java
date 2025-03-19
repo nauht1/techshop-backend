@@ -3,6 +3,7 @@ package hcmute.techshop.Service.Cart;
 import hcmute.techshop.Entity.Auth.UserEntity;
 import hcmute.techshop.Model.Cart.AddToCartRequest;
 import hcmute.techshop.Model.Cart.CartResponse;
+import hcmute.techshop.Model.Cart.ToggleCartItemRequest;
 import hcmute.techshop.Model.Cart.UpdateCartItemRequest;
 
 public interface ICartService {
@@ -16,4 +17,5 @@ public interface ICartService {
     CartResponse clearCart(UserEntity user);
     CartResponse incrementCartItemQuantity(UserEntity user, Integer cartItemId);
     CartResponse decrementCartItemQuantity(UserEntity user, Integer cartItemId);
+    CartResponse toggleCartItem(UserEntity user, ToggleCartItemRequest request);
 }

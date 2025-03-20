@@ -1,6 +1,8 @@
 package hcmute.techshop.Controller.Product;
 
 import hcmute.techshop.Entity.Product.ProductAttributeEntity;
+import hcmute.techshop.Exception.IllegalArgumentException;
+import hcmute.techshop.Exception.ResourceNotFoundException;
 import hcmute.techshop.Model.Product.ProductAttributeModel;
 import hcmute.techshop.Model.ResponseModel;
 import hcmute.techshop.Service.Product.ProductAttribute.IProductAttribute;
@@ -8,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/admin/product-attribute")
@@ -18,22 +22,18 @@ public class AdminProductAttributeController {
     private final IProductAttribute productAttributeService;
 
     @GetMapping("")
-    public ResponseEntity<ResponseModel> getProductAttributes() {
+    public ResponseEntity<ResponseModel> findAll(@RequestParam int productId) {
         try {
+            List<ProductAttributeEntity> productAttributeEntities = productAttributeService.GetAllProductAttribute();
             return ResponseEntity.ok(
                     ResponseModel.builder()
                             .success(true)
-                            .message("Get product attributes successfully")
-                            .body(productAttributeService.GetAllProductAttribute())
+                            .message("Get Product Attribues successfully")
+                            .body(productAttributeEntities)
                             .build()
             );
-        } catch (Exception e) {
-            return ResponseEntity.ok(
-                    ResponseModel.builder()
-                            .success(false)
-                            .message(e.getMessage())
-                            .build()
-            );
+        }catch (IllegalArgumentException | ResourceNotFoundException e){
+            return ResponseEntity.ok(ResponseModel.builder().success(false).message(e.getMessage()).build());
         }
     }
 
@@ -48,13 +48,30 @@ public class AdminProductAttributeController {
                             .body(attribute)
                             .build()
             );
-        } catch (Exception e) {
+        } catch (hcmute.techshop.Exception.IllegalArgumentException | ResourceNotFoundException e) {
             return ResponseEntity.ok(
                     ResponseModel.builder()
                             .success(false)
                             .message(e.getMessage())
                             .build()
             );
+        }
+    }
+
+    @GetMapping("/product/{id}")
+    public ResponseEntity<ResponseModel> findById(@PathVariable("id") Long productId) {
+        try {
+            List<ProductAttributeEntity> ret = productAttributeService.getByProductId(productId);
+            return ResponseEntity.ok(
+                    ResponseModel.builder()
+                            .success(true)
+                            .message("Get Product Attribute successfully")
+                            .body(ret)
+                            .build()
+            );
+        }
+        catch (IllegalArgumentException | ResourceNotFoundException e){
+            return ResponseEntity.ok(ResponseModel.builder().success(false).message(e.getMessage()).build());
         }
     }
 
@@ -69,7 +86,7 @@ public class AdminProductAttributeController {
                             .body(created)
                             .build()
             );
-        } catch (Exception e) {
+        } catch (hcmute.techshop.Exception.IllegalArgumentException | ResourceNotFoundException e) {
             return ResponseEntity.ok(
                     ResponseModel.builder()
                             .success(false)
@@ -92,7 +109,7 @@ public class AdminProductAttributeController {
                             .body(updated)
                             .build()
             );
-        } catch (Exception e) {
+        } catch (hcmute.techshop.Exception.IllegalArgumentException | ResourceNotFoundException e) {
             return ResponseEntity.ok(
                     ResponseModel.builder()
                             .success(false)
@@ -115,7 +132,7 @@ public class AdminProductAttributeController {
                             .message("Product attribute deleted successfully")
                             .build()
             );
-        } catch (Exception e) {
+        } catch (IllegalArgumentException | ResourceNotFoundException e) {
             return ResponseEntity.ok(
                     ResponseModel.builder()
                             .success(false)

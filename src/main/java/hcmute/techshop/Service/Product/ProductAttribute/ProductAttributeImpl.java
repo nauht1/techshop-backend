@@ -2,6 +2,7 @@ package hcmute.techshop.Service.Product.ProductAttribute;
 
 import hcmute.techshop.Entity.Product.ProductAttributeEntity;
 import hcmute.techshop.Entity.Product.ProductEntity;
+import hcmute.techshop.Exception.IllegalArgumentException;
 import hcmute.techshop.Exception.ResourceNotFoundException;
 import hcmute.techshop.Model.Product.ProductAttributeModel;
 import hcmute.techshop.Repository.Product.ProductAttributeRepository;
@@ -29,8 +30,13 @@ public class ProductAttributeImpl implements IProductAttribute {
     }
 
     @Override
+    public List<ProductAttributeEntity> getByProductId(long id) {
+        return repository.findByProductId(id);
+    }
+
+    @Override
     public ProductAttributeEntity save(ProductAttributeModel productAttributeModel) {
-        ProductEntity product = productRepository.findById(productAttributeModel.getProduct())
+        ProductEntity product = productRepository.findById(productAttributeModel.getProductId())
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
         ProductAttributeEntity newEntity = ProductAttributeEntity.builder()
@@ -45,7 +51,7 @@ public class ProductAttributeImpl implements IProductAttribute {
     @Override
     public ProductAttributeEntity update(ProductAttributeModel productAttributeModel) {
         if (productAttributeModel.getId() == null) {
-            throw new ResourceNotFoundException("Product attribute not found");
+            throw new IllegalArgumentException("Product attribute not found");
         }
 
         ProductAttributeEntity updateEntity = repository.findById(productAttributeModel.getId().longValue())
@@ -57,8 +63,8 @@ public class ProductAttributeImpl implements IProductAttribute {
         if (productAttributeModel.getAttValue() != null && !productAttributeModel.getAttValue().isBlank()) {
             updateEntity.setAttValue(productAttributeModel.getAttValue());
         }
-        if (productAttributeModel.getProduct() != null) {
-            ProductEntity product = productRepository.findById(productAttributeModel.getProduct())
+        if (productAttributeModel.getProductId() != null) {
+            ProductEntity product = productRepository.findById(productAttributeModel.getProductId())
                     .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
             updateEntity.setProduct(product);
         }

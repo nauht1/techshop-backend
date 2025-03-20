@@ -17,5 +17,5 @@ public class ProductAttributeModel {
     String attName;
     String attValue;
 
-    Integer product;
+    Integer productId;
 }

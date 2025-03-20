@@ -26,6 +26,11 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong in server: " + ex.getMessage());
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ResponseModel> handleIllegalArgument(IllegalArgumentException ex) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, "You provided not enough argument: "+ex.getMessage());
+    }
+
     // hàm hỗ trợ format response
     private ResponseEntity<ResponseModel> buildErrorResponse(HttpStatus status, String message) {
         ResponseModel response = new ResponseModel(false, message, null);

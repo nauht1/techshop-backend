@@ -9,6 +9,7 @@ import java.util.List;
 public interface IProductAttribute {
     List<ProductAttributeEntity> GetAllProductAttribute();
     ProductAttributeEntity getById(long id);
+    List<ProductAttributeEntity> getByProductId(long id);
     ProductAttributeEntity save(ProductAttributeModel productAttributeEntity);
     ProductAttributeEntity update(ProductAttributeModel productAttributeEntity);
     ProductAttributeEntity delete(ProductAttributeModel productAttributeEntity);

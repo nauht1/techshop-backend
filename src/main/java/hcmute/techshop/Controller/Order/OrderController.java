@@ -6,7 +6,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/orders")
@@ -15,13 +17,23 @@ public class OrderController {
     private final IOrderService orderService;
 
     @GetMapping("/user/{userId}")
-    public List<OrderEntity> getOrdersByUserId(@PathVariable Integer userId) {
-        return orderService.getOrdersByUserId(userId);
+    public ResponseEntity<Map<String, Object>> getOrdersByUserId(@PathVariable Integer userId) {
+        List<OrderEntity> orders = orderService.getOrdersByUserId(userId);
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "Get data successfully");
+        response.put("data", orders);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping
-    public ResponseEntity<OrderEntity> placeOrder(@RequestBody OrderEntity order) {
-        return ResponseEntity.ok(orderService.placeOrder(order));
+    public ResponseEntity<Map<String, Object>> placeOrder(@RequestBody OrderEntity order) {
+        OrderEntity placedOrder = orderService.placeOrder(order);
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "Order placed successfully");
+        response.put("data", placedOrder);
+        return ResponseEntity.ok(response);
     }
 }
 
@@ -32,13 +44,22 @@ class AdminOrderController {
     private final IOrderService orderService;
 
     @PutMapping("/{orderId}/status")
-    public ResponseEntity<OrderEntity> updateOrderStatus(@PathVariable Integer orderId, @RequestParam String status) {
-        return ResponseEntity.ok(orderService.updateOrderStatus(orderId, status));
+    public ResponseEntity<Map<String, Object>> updateOrderStatus(@PathVariable Integer orderId, @RequestParam String status) {
+        OrderEntity updatedOrder = orderService.updateOrderStatus(orderId, status);
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "Order status updated successfully");
+        response.put("data", updatedOrder);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{orderId}")
-    public ResponseEntity<String> cancelOrder(@PathVariable Integer orderId) {
+    public ResponseEntity<Map<String, Object>> cancelOrder(@PathVariable Integer orderId) {
         orderService.cancelOrder(orderId);
-        return ResponseEntity.ok("Order cancelled successfully");
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "Order cancelled successfully");
+        response.put("data", null);
+        return ResponseEntity.ok(response);
     }
 }

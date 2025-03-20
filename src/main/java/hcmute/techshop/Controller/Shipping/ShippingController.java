@@ -6,7 +6,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/shipping-methods")
@@ -15,8 +17,13 @@ public class ShippingController {
     private final IShippingService shippingMethodService;
 
     @GetMapping
-    public List<ShippingMethodEntity> getAllActiveShippingMethods() {
-        return shippingMethodService.getAllActiveShippingMethods();
+    public ResponseEntity<Map<String, Object>> getAllActiveShippingMethods() {
+        List<ShippingMethodEntity> shippingMethods = shippingMethodService.getAllActiveShippingMethods();
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "Get data successfully");
+        response.put("data", shippingMethods);
+        return ResponseEntity.ok(response);
     }
 }
 
@@ -27,18 +34,32 @@ class AdminShippingController {
     private final IShippingService shippingMethodService;
 
     @PostMapping
-    public ResponseEntity<ShippingMethodEntity> addShippingMethod(@RequestBody ShippingMethodEntity shippingMethod) {
-        return ResponseEntity.ok(shippingMethodService.addShippingMethod(shippingMethod));
+    public ResponseEntity<Map<String, Object>> addShippingMethod(@RequestBody ShippingMethodEntity shippingMethod) {
+        ShippingMethodEntity addedMethod = shippingMethodService.addShippingMethod(shippingMethod);
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "Shipping method added successfully");
+        response.put("data", addedMethod);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ShippingMethodEntity> updateShippingMethod(@PathVariable Integer id, @RequestBody ShippingMethodEntity newMethod) {
-        return ResponseEntity.ok(shippingMethodService.updateShippingMethod(id, newMethod));
+    public ResponseEntity<Map<String, Object>> updateShippingMethod(@PathVariable Integer id, @RequestBody ShippingMethodEntity newMethod) {
+        ShippingMethodEntity updatedMethod = shippingMethodService.updateShippingMethod(id, newMethod);
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "Shipping method updated successfully");
+        response.put("data", updatedMethod);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> softDeleteShippingMethod(@PathVariable Integer id) {
+    public ResponseEntity<Map<String, Object>> softDeleteShippingMethod(@PathVariable Integer id) {
         shippingMethodService.softDeleteShippingMethod(id);
-        return ResponseEntity.ok("Shipping Method deactivated successfully");
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "Shipping method deactivated successfully");
+        response.put("data", null);
+        return ResponseEntity.ok(response);
     }
 }

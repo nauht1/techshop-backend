@@ -1,16 +1,18 @@
 package hcmute.techshop.Service.Product.ProductAttribute;
 
 import hcmute.techshop.Entity.Product.ProductAttributeEntity;
-import hcmute.techshop.Model.Product.ProductAttributeModel;
-import org.springframework.stereotype.Service;
+import hcmute.techshop.Model.Product.ProductAttribute.ProductAttributeAddNewRequestModel;
+import hcmute.techshop.Model.Product.ProductAttribute.ProductAttributeResponseModel;
+import hcmute.techshop.Model.Product.ProductAttribute.ProductAttributeResponseProjection;
+import hcmute.techshop.Model.Product.ProductAttribute.ProductAttributeUpadteRequestModel;
 
 import java.util.List;
 
 public interface IProductAttribute {
-    List<ProductAttributeEntity> GetAllProductAttribute();
-    ProductAttributeEntity getById(long id);
-    List<ProductAttributeEntity> getByProductId(long id);
-    ProductAttributeEntity save(ProductAttributeModel productAttributeEntity);
-    ProductAttributeEntity update(ProductAttributeModel productAttributeEntity);
-    ProductAttributeEntity delete(ProductAttributeModel productAttributeEntity);
+    List<ProductAttributeResponseProjection> getAll();
+    ProductAttributeResponseProjection getById(Integer id);
+    List<ProductAttributeResponseProjection> getByProductId(Integer id);
+    ProductAttributeResponseProjection save(ProductAttributeAddNewRequestModel model);
+    ProductAttributeResponseModel update(ProductAttributeUpadteRequestModel model);
+    ProductAttributeResponseModel delete(Integer id);
 }

@@ -3,7 +3,10 @@ package hcmute.techshop.Controller.Product;
 import hcmute.techshop.Entity.Product.ProductAttributeEntity;
 import hcmute.techshop.Exception.IllegalArgumentException;
 import hcmute.techshop.Exception.ResourceNotFoundException;
-import hcmute.techshop.Model.Product.ProductAttributeModel;
+import hcmute.techshop.Model.Product.ProductAttribute.ProductAttributeAddNewRequestModel;
+import hcmute.techshop.Model.Product.ProductAttribute.ProductAttributeResponseModel;
+import hcmute.techshop.Model.Product.ProductAttribute.ProductAttributeResponseProjection;
+import hcmute.techshop.Model.Product.ProductAttribute.ProductAttributeUpadteRequestModel;
 import hcmute.techshop.Model.ResponseModel;
 import hcmute.techshop.Service.Product.ProductAttribute.IProductAttribute;
 import lombok.RequiredArgsConstructor;
@@ -22,25 +25,32 @@ public class AdminProductAttributeController {
     private final IProductAttribute productAttributeService;
 
     @GetMapping("")
-    public ResponseEntity<ResponseModel> findAll(@RequestParam int productId) {
+    public ResponseEntity<ResponseModel> findAll(@RequestParam(required = false) Integer productId) {
         try {
-            List<ProductAttributeEntity> productAttributeEntities = productAttributeService.GetAllProductAttribute();
+            List<ProductAttributeResponseProjection> productAttributes;
+
+            if (productId != null) {
+                productAttributes = productAttributeService.getByProductId(productId);
+            } else {
+                productAttributes = productAttributeService.getAll(); // Hàm lấy tất cả
+            }
+
             return ResponseEntity.ok(
                     ResponseModel.builder()
                             .success(true)
-                            .message("Get Product Attribues successfully")
-                            .body(productAttributeEntities)
+                            .message("Get Product Attributes successfully")
+                            .body(productAttributes)
                             .build()
             );
-        }catch (IllegalArgumentException | ResourceNotFoundException e){
+        } catch (IllegalArgumentException | ResourceNotFoundException e) {
             return ResponseEntity.ok(ResponseModel.builder().success(false).message(e.getMessage()).build());
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseModel> getProductAttributeById(@PathVariable Long id) {
+    public ResponseEntity<ResponseModel> getProductAttributeById(@PathVariable Integer id) {
         try {
-            ProductAttributeEntity attribute = productAttributeService.getById(id);
+            List<ProductAttributeResponseProjection> attribute = productAttributeService.getByProductId(id);
             return ResponseEntity.ok(
                     ResponseModel.builder()
                             .success(true)
@@ -59,9 +69,9 @@ public class AdminProductAttributeController {
     }
 
     @GetMapping("/product/{id}")
-    public ResponseEntity<ResponseModel> findById(@PathVariable("id") Long productId) {
+    public ResponseEntity<ResponseModel> findById(@PathVariable("id") Integer productId) {
         try {
-            List<ProductAttributeEntity> ret = productAttributeService.getByProductId(productId);
+            List<ProductAttributeResponseProjection> ret = productAttributeService.getByProductId(productId);
             return ResponseEntity.ok(
                     ResponseModel.builder()
                             .success(true)
@@ -76,9 +86,9 @@ public class AdminProductAttributeController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<ResponseModel> addProductAttribute(@RequestBody ProductAttributeModel productAttribute) {
+    public ResponseEntity<ResponseModel> addProductAttribute(@RequestBody ProductAttributeAddNewRequestModel productAttribute) {
         try {
-            ProductAttributeEntity created = productAttributeService.save(productAttribute);
+            ProductAttributeResponseProjection created = productAttributeService.save(productAttribute);
             return ResponseEntity.ok(
                     ResponseModel.builder()
                             .success(true)
@@ -97,11 +107,11 @@ public class AdminProductAttributeController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<ResponseModel> updateProductAttribute(@PathVariable Integer id, @RequestBody ProductAttributeModel productAttribute) {
+    public ResponseEntity<ResponseModel> updateProductAttribute(@PathVariable Integer id, @RequestBody ProductAttributeUpadteRequestModel model) {
         try {
             // Đảm bảo set id từ path variable vào model
-            productAttribute.setId(id);
-            ProductAttributeEntity updated = productAttributeService.update(productAttribute);
+            model.setId(id);
+            ProductAttributeResponseModel updated = productAttributeService.update(model);
             return ResponseEntity.ok(
                     ResponseModel.builder()
                             .success(true)
@@ -123,9 +133,7 @@ public class AdminProductAttributeController {
     public ResponseEntity<ResponseModel> deleteProductAttribute(@PathVariable Integer id) {
         try {
             // Vì delete của service nhận ProductAttributeModel, nên khởi tạo model với id cần xóa
-            ProductAttributeModel model = new ProductAttributeModel();
-            model.setId(id);
-            productAttributeService.delete(model);
+            productAttributeService.delete(id);
             return ResponseEntity.ok(
                     ResponseModel.builder()
                             .success(true)

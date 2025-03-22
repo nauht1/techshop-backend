@@ -34,4 +34,9 @@ public class UserController {
                 .orElseThrow(() -> new UsernameNotFoundException("Cannot found user in system!!!"));
         return ResponseEntity.ok(ProfileResponse.builder().message("Get profile user success").user(user).build());
     }
+
+    @PutMapping("/profile/update/{id}")
+    public ResponseEntity<?> updateUserProfile(@PathVariable Long id) {
+
+    }
 }

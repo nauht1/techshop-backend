@@ -4,6 +4,7 @@ import hcmute.techshop.Entity.Product.ProductAttributeEntity;
 import hcmute.techshop.Entity.Product.ProductVariantEntity;
 import hcmute.techshop.Exception.IllegalArgumentException;
 import hcmute.techshop.Exception.ResourceNotFoundException;
+import hcmute.techshop.Model.Product.ProductVariant.ProductVariantResponseProjection;
 import hcmute.techshop.Model.ResponseModel;
 import hcmute.techshop.Service.Product.ProductVariant.IProductVariantService;
 import lombok.RequiredArgsConstructor;
@@ -21,17 +22,14 @@ public class ProductVariantController {
     private final IProductVariantService productVariantService;
 
     @GetMapping("")
-    public ResponseEntity<ResponseModel> getProductVariants(@RequestParam int productId) {
+    public ResponseEntity<ResponseModel> getProductVariants(@RequestParam(required = false) Integer productId) {
         try {
-
-            List<ProductVariantEntity> ret = productVariantService.getAll();
-
-            if(productId > 0){
-                ret = ret.stream()
-                        .filter(productVariantEntity -> productVariantEntity.getProduct().getId() == productId)
-                        .collect(Collectors.toList());
+            List<ProductVariantResponseProjection> ret;
+            if (productId != null) {
+                ret = productVariantService.getByProductId(productId);
+            } else {
+                ret = productVariantService.getAll();
             }
-
 
             return ResponseEntity.ok(
                     ResponseModel.builder()
@@ -48,7 +46,7 @@ public class ProductVariantController {
     @GetMapping("/product/{id}")
     public ResponseEntity<ResponseModel> getProductVariantById(@PathVariable Integer id) {
         try {
-            List<ProductVariantEntity> ret = productVariantService.getByProductId(id);
+            List<ProductVariantResponseProjection> ret = productVariantService.getByProductId(id);
 
             return ResponseEntity
                     .ok(

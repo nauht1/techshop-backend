@@ -1,11 +1,8 @@
 package hcmute.techshop.Entity.Product;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 
 @Entity
 @Table(name = "product_variants")
@@ -20,11 +17,14 @@ public class ProductVariantEntity {
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
-    @JsonIgnore
     private ProductEntity product;
 
+    @NotNull
     private String sku;
+    @NotNull
     private String variantName;
+    @NotNull
     private Double price;
+    @NotNull
     private Integer stock;
 }

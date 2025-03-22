@@ -3,7 +3,10 @@ package hcmute.techshop.Controller.Product;
 import hcmute.techshop.Entity.Product.ProductVariantEntity;
 import hcmute.techshop.Exception.IllegalArgumentException;
 import hcmute.techshop.Exception.ResourceNotFoundException;
-import hcmute.techshop.Model.Product.ProductVariantModel;
+import hcmute.techshop.Model.Product.ProductVariant.ProductVariantAddNewRequestModel;
+import hcmute.techshop.Model.Product.ProductVariant.ProductVariantResponseModel;
+import hcmute.techshop.Model.Product.ProductVariant.ProductVariantResponseProjection;
+import hcmute.techshop.Model.Product.ProductVariant.ProductVariantUpdateRequestModel;
 import hcmute.techshop.Model.ResponseModel;
 import hcmute.techshop.Service.Product.ProductVariant.IProductVariantService;
 import lombok.RequiredArgsConstructor;
@@ -22,17 +25,14 @@ public class AdminProductVariantController {
     private final IProductVariantService productVariantService;
 
     @GetMapping("")
-    public ResponseEntity<ResponseModel> getProductVariants(@RequestParam int productId) {
+    public ResponseEntity<ResponseModel> getProductVariants(@RequestParam(required = false) Integer productId) {
         try {
-
-            List<ProductVariantEntity> ret = productVariantService.getAll();
-
-            if(productId > 0){
-                ret = ret.stream()
-                        .filter(productVariantEntity -> productVariantEntity.getProduct().getId() == productId)
-                        .collect(Collectors.toList());
+            List<ProductVariantResponseProjection> ret;
+            if (productId != null) {
+                ret = productVariantService.getByProductId(productId);
+            } else {
+                ret = productVariantService.getAll();
             }
-
 
             return ResponseEntity.ok(
                     ResponseModel.builder()
@@ -56,9 +56,9 @@ public class AdminProductVariantController {
     }
 
     @GetMapping("/product/{id}")
-    public ResponseEntity<ResponseModel> getProductVariant(@PathVariable int id, @RequestParam int productId) {
+    public ResponseEntity<ResponseModel> getProductVariant(@PathVariable Integer id, @RequestParam int productId) {
         try {
-            List<ProductVariantEntity> ret = productVariantService.getByProductId(id);
+            List<ProductVariantResponseProjection> ret = productVariantService.getByProductId(id);
 
             return ResponseEntity
                     .ok(
@@ -74,7 +74,7 @@ public class AdminProductVariantController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<ResponseModel> addProductVariant(@RequestBody ProductVariantModel productVariant) {
+    public ResponseEntity<ResponseModel> addProductVariant(@RequestBody ProductVariantAddNewRequestModel productVariant) {
         try {
             return ResponseEntity.ok(
                     ResponseModel.builder()
@@ -89,7 +89,7 @@ public class AdminProductVariantController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<ResponseModel> updateProductVariant(@PathVariable Long id, @RequestBody ProductVariantModel productVariant) {
+    public ResponseEntity<ResponseModel> updateProductVariant(@PathVariable Integer id, @RequestBody ProductVariantUpdateRequestModel productVariant) {
         try {
             return ResponseEntity.ok(
                     ResponseModel.builder()
@@ -104,7 +104,7 @@ public class AdminProductVariantController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<ResponseModel> deleteProductVariant(@PathVariable Long id) {
+    public ResponseEntity<ResponseModel> deleteProductVariant(@PathVariable Integer id) {
         try {
             productVariantService.deleteProductVariant(id);
             return ResponseEntity.ok(ResponseModel.builder().success(true).message("Product variant deleted successfully").build());

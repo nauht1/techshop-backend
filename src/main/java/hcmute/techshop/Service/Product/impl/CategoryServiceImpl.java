@@ -3,6 +3,7 @@ package hcmute.techshop.Service.Product.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,9 +24,12 @@ public class CategoryServiceImpl implements CategoryService {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     @Override
-    public CategoryEntity createCategory(CategoryModel request) {
-        return categoryRepository.save(
+    public CategoryModel createCategory(CategoryModel request) {
+        CategoryEntity savedCategory = categoryRepository.save(
             CategoryEntity.builder()
                 .id(request.getId())
                 .name(request.getName())
@@ -39,32 +43,58 @@ public class CategoryServiceImpl implements CategoryService {
                 .isActive(true)
                 .build()
         );
+        return modelMapper.map(savedCategory, CategoryModel.class);
     }
 
     @Override
-    public CategoryEntity getCategoryById(Integer id) {
-        return categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("CategoryEntity not found with id: " + id));
+    public CategoryModel getCategoryById(Integer id) {
+        return modelMapper.map(
+            categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found with id: " + id))
+            , CategoryModel.class
+        );
     }
 
     @Override
-    public List<CategoryEntity> getAllCategories() {
-        return categoryRepository.findAll();
+    public List<CategoryModel> getAllCategories() {
+        List<CategoryEntity> categories = categoryRepository.findAll();
+        return categories.stream().map(category -> modelMapper.map(category, CategoryModel.class)).collect(Collectors.toList());
     }
 
     @Override
-    public CategoryEntity updateCategory(CategoryModel request) {
-        CategoryEntity existingCategory = getCategoryById(request.getId());
+    public CategoryModel updateCategory(CategoryModel request) {
+        CategoryEntity existingCategory = categoryRepository.findById(request.getId())
+            .orElseThrow(() -> new RuntimeException("Category not found with id: " + request.getId()));
         existingCategory.setName(request.getName());
         existingCategory.setSubCategories(getSubcategories(request.getSubCategories()));
         existingCategory.setProducts(getProducts(request.getProducts()));
-        return categoryRepository.save(existingCategory);
+        return modelMapper.map(
+            categoryRepository.save(existingCategory),
+            CategoryModel.class
+        );
     }
 
     @Override
     public void deleteCategory(Integer id) {
-        CategoryEntity category = getCategoryById(id);
+        CategoryEntity category = categoryRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
         categoryRepository.delete(category);
+    }
+
+    @Override
+    public void softDeleteCategory(Integer id) {
+        CategoryEntity category = categoryRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
+        category.setActive(false);
+        categoryRepository.save(category);
+    }
+
+    @Override
+    public void restoreCategory(Integer id) {
+        CategoryEntity category = categoryRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
+        category.setActive(true);
+        categoryRepository.save(category);
     }
 
     private List<CategoryEntity> getSubcategories(List<CategoryModel> subcategories) {

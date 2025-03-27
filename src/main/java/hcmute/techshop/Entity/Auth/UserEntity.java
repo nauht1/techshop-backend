@@ -1,14 +1,12 @@
 package hcmute.techshop.Entity.Auth;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import hcmute.techshop.Entity.Shipping.AddressEntity;
 import hcmute.techshop.Entity.Cart.CartEntity;
 import hcmute.techshop.Enum.AuthProvider;
 import hcmute.techshop.Enum.Role;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -60,6 +58,8 @@ public class UserEntity implements UserDetails {
     private CartEntity cart;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @JsonIgnore
     private List<AddressEntity> addresses = new ArrayList<>();
 
     @Override
@@ -85,10 +85,5 @@ public class UserEntity implements UserDetails {
     @Override
     public boolean isEnabled() {
         return UserDetails.super.isEnabled();
-    }
-
-    @Override
-    public String getUsername() {
-        return this.email;
     }
 }

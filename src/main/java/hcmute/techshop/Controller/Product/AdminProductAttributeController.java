@@ -21,7 +21,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdminProductAttributeController {
 
-    @Autowired
     private final IProductAttribute productAttributeService;
 
     @GetMapping("")
@@ -50,7 +49,7 @@ public class AdminProductAttributeController {
     @GetMapping("/{id}")
     public ResponseEntity<ResponseModel> getProductAttributeById(@PathVariable Integer id) {
         try {
-            List<ProductAttributeResponseProjection> attribute = productAttributeService.getByProductId(id);
+            ProductAttributeResponseProjection attribute = productAttributeService.getById(id);
             return ResponseEntity.ok(
                     ResponseModel.builder()
                             .success(true)
@@ -88,7 +87,7 @@ public class AdminProductAttributeController {
     @PostMapping("/add")
     public ResponseEntity<ResponseModel> addProductAttribute(@RequestBody ProductAttributeAddNewRequestModel productAttribute) {
         try {
-            ProductAttributeResponseProjection created = productAttributeService.save(productAttribute);
+            ProductAttributeResponseModel created = productAttributeService.save(productAttribute);
             return ResponseEntity.ok(
                     ResponseModel.builder()
                             .success(true)

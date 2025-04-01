@@ -1,8 +1,13 @@
 package hcmute.techshop.Service.Product.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import hcmute.techshop.Enum.PaymentStatus;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import hcmute.techshop.Entity.Product.BrandEntity;
@@ -12,10 +17,10 @@ import hcmute.techshop.Model.Product.ProductModel;
 import hcmute.techshop.Repository.Product.BrandRepository;
 import hcmute.techshop.Repository.Product.CategoryRepository;
 import hcmute.techshop.Repository.Product.ProductRepository;
-import hcmute.techshop.Service.Product.ProductService;
+import hcmute.techshop.Service.Product.IProductService;
 
 @Service
-public class ProductServiceImpl implements ProductService {
+public class ProductServiceImpl implements IProductService {
     @Autowired
     private ProductRepository productRepository;
 
@@ -24,6 +29,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private BrandRepository brandRepository;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Override
     public ProductEntity createProduct(ProductModel request) {
@@ -57,6 +65,18 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductEntity> getAllProducts() {
         return productRepository.findAll();
+    }
+
+    @Override
+    public List<ProductModel> getTop10Products() {
+        Pageable pageable  = PageRequest.of(0, 10);
+        List<ProductModel> ret = new ArrayList<ProductModel>();
+        List<ProductEntity> l = productRepository.findTopSellingProducts(PaymentStatus.SUCCESS, pageable);
+        for (ProductEntity e : l) {
+            ProductModel p = modelMapper.map(e, ProductModel.class);
+            ret.add(p);
+        }
+        return ret;
     }
 
     @Override

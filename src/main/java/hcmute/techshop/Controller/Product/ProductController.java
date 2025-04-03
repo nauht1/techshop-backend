@@ -1,10 +1,8 @@
 package hcmute.techshop.Controller.Product;
 
-import hcmute.techshop.Entity.Product.ProductEntity;
-import hcmute.techshop.Model.ApiResponse;
+import hcmute.techshop.Model.ResponseModel;
 import hcmute.techshop.Model.Product.ProductModel;
 import hcmute.techshop.Service.Product.ProductService;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,52 +11,83 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("/api/v1/product")
 public class ProductController {
 
     @Autowired
-    private ProductService productService;
+    protected ProductService productService;
 
-    @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<ProductEntity>> createProduct(@RequestBody ProductModel product) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-            new ApiResponse<>(true, "Thêm sản phẩm thành công", productService.createProduct(product))
-        );
+    @RestController
+    @RequestMapping("/api/v1/product")
+    public static class UserProductController {
+        @Autowired
+        private ProductService productService;
+
+        @GetMapping("/{id}")
+        public ResponseEntity<ResponseModel> getProductById(@PathVariable Integer id) {
+            ProductModel product = productService.getProductById(id);
+            return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseModel(true, "Lấy sản phẩm thành công", product)
+            );
+        }
+    
+        @GetMapping
+        public ResponseEntity<ResponseModel> getAllProducts() {
+            List<ProductModel> products = productService.getAllProducts();
+            return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseModel(true, "Lấy danh sách sản phẩm thành công", products)
+            );
+        }
     }
+    
+    @RestController
+    @RequestMapping("/api/v1/admin/product")
+    public static class AdminProductController {
+        @Autowired
+        private ProductService productService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<ProductEntity>> getProductById(@PathVariable Integer id) {
-        ProductEntity product = productService.getProductById(id);
-        return ResponseEntity.status(HttpStatus.OK).body(
-            new ApiResponse<>(true, "Lấy sản phẩm thành công", product)
-        );
-    }
+        @PostMapping
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<ResponseModel> createProduct(@RequestBody ProductModel product) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(
+                new ResponseModel(true, "Thêm sản phẩm thành công", productService.createProduct(product))
+            );
+        }
 
-    @GetMapping
-    public ResponseEntity<ApiResponse<List<ProductEntity>>> getAllProducts() {
-        List<ProductEntity> products = productService.getAllProducts();
-        return ResponseEntity.status(HttpStatus.OK).body(
-            new ApiResponse<>(true, "Lấy danh sách sản phẩm thành công", products)
-        );
-    }
+        @PutMapping("/{id}")
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<ResponseModel> updateProduct(@PathVariable Integer id, @RequestBody ProductModel product) {
+            product.setId(id);
+            return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseModel(true, "Cập nhật sản phẩm thành công", productService.updateProduct(product))
+            );
+        }
 
-    @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<ProductEntity>> updateProduct(@PathVariable Integer id, @RequestBody ProductModel product) {
-        product.setId(id);
-        return ResponseEntity.status(HttpStatus.OK).body(
-            new ApiResponse<>(true, "Cập nhật sản phẩm thành công", productService.updateProduct(product))
-        );
-    }
+        @DeleteMapping("/{id}")
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<ResponseModel> deleteProduct(@PathVariable Integer id) {
+            productService.deleteProduct(id);
+            return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseModel(true, "Xóa sản phẩm thành công", "Product ID " + id + " đã bị xóa")
+            );
+        }
 
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<String>> deleteProduct(@PathVariable Integer id) {
-        productService.deleteProduct(id);
-        return ResponseEntity.status(HttpStatus.OK).body(
-            new ApiResponse<>(true, "Xóa sản phẩm thành công", "Product ID " + id + " đã bị xóa")
-        );
+        @PutMapping("/{id}/soft-delete")
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<ResponseModel> softDeleteProduct(@PathVariable Integer id) {
+            productService.softDeleteProduct(id);
+            return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseModel(true, "Đã xóa tạm thời sản phẩm thành công", "Product ID " + id + " đã bị xóa tạm thời")
+            );
+        }
+
+        // Restore product endpoint
+        @PutMapping("/{id}/restore")
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<ResponseModel> restoreProduct(@PathVariable Integer id) {
+            productService.restoreProduct(id);
+            return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseModel(true, "Đã phục hồi sản phẩm thành công", "Product ID " + id + " đã được phục hồi")
+            );
+        }
     }
 }

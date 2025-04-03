@@ -1,7 +1,9 @@
 package hcmute.techshop.Service.Product.impl;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,50 +27,66 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private BrandRepository brandRepository;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     @Override
-    public ProductEntity createProduct(ProductModel request) {
+    public ProductModel createProduct(ProductModel request) {
+        // Set ID to null for new product
+        request.setId(null);
+
+        // Fetch and validate category and brand
         CategoryEntity category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Category not found with id: " + request.getCategoryId()));
 
         BrandEntity brand = brandRepository.findById(request.getBrandId())
                 .orElseThrow(() -> new RuntimeException("Brand not found with id: " + request.getBrandId()));
 
-        return productRepository.save(
-            new ProductEntity(
-                request.getId(),
-                request.getName(),
-                request.getDescription(),
-                request.getPrice(),
-                request.getSalePrice(),
-                request.getStock(),
-                request.isActive(),
-                category,
-                brand
-            )
-        );
+        // Create product entity
+        ProductEntity productEntity = ProductEntity.builder()
+                .name(request.getName())
+                .description(request.getDescription())
+                .price(request.getPrice())
+                .salePrice(request.getSalePrice())
+                .stock(request.getStock())
+                .isActive(request.isActive())
+                .category(category)
+                .brand(brand)
+                .build();
+
+        // Save and map back to model
+        ProductEntity savedProduct = productRepository.save(productEntity);
+        return modelMapper.map(savedProduct, ProductModel.class);
     }
 
     @Override
-    public ProductEntity getProductById(Integer id) {
-        return productRepository.findById(id)
+    public ProductModel getProductById(Integer id) {
+        ProductEntity product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+        return modelMapper.map(product, ProductModel.class);
     }
 
     @Override
-    public List<ProductEntity> getAllProducts() {
-        return productRepository.findAll();
+    public List<ProductModel> getAllProducts() {
+        return productRepository.findAll().stream()
+                .map(product -> modelMapper.map(product, ProductModel.class))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public ProductEntity updateProduct(ProductModel request) {
-        ProductEntity existingProduct = getProductById(request.getId());
+    public ProductModel updateProduct(ProductModel request) {
+        // Validate product existence
+        ProductEntity existingProduct = productRepository.findById(request.getId())
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + request.getId()));
 
+        // Fetch and validate category and brand
         CategoryEntity category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Category not found with id: " + request.getCategoryId()));
 
         BrandEntity brand = brandRepository.findById(request.getBrandId())
                 .orElseThrow(() -> new RuntimeException("Brand not found with id: " + request.getBrandId()));
 
+        // Update existing product
         existingProduct.setName(request.getName());
         existingProduct.setDescription(request.getDescription());
         existingProduct.setPrice(request.getPrice());
@@ -78,12 +96,31 @@ public class ProductServiceImpl implements ProductService {
         existingProduct.setCategory(category);
         existingProduct.setBrand(brand);
 
-        return productRepository.save(existingProduct);
+        // Save and map back to model
+        ProductEntity updatedProduct = productRepository.save(existingProduct);
+        return modelMapper.map(updatedProduct, ProductModel.class);
     }
 
     @Override
     public void deleteProduct(Integer id) {
-        ProductEntity product = getProductById(id);
+        ProductEntity product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
         productRepository.delete(product);
+    }
+
+    @Override
+    public void softDeleteProduct(Integer id) {
+        ProductEntity product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+        product.setActive(false);
+        productRepository.save(product);
+    }
+
+    @Override
+    public void restoreProduct(Integer id) {
+        ProductEntity product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+        product.setActive(true);
+        productRepository.save(product);
     }
 }

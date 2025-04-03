@@ -154,6 +154,11 @@
 			<version>${mapstruct.version}</version>
 			<scope>provided</scope> <!-- Only needed at compile time -->
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
+			<version>3.4.4</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

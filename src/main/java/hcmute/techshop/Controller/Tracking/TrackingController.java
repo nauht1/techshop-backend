@@ -1,2 +1,4 @@
-package hcmute.techshop.Controller.Tracking;public class TrackingController {
+package hcmute.techshop.Controller.Tracking;
+
+public class TrackingController {
 }

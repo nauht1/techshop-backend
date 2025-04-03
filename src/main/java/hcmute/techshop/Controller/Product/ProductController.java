@@ -32,7 +32,7 @@ public class ProductController {
     
         @GetMapping
         public ResponseEntity<ResponseModel> getAllProducts() {
-            List<ProductModel> products = productService.getAllProducts();
+            List<ProductModel> products = productService.getAllActiveProducts();
             return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseModel(true, "Lấy danh sách sản phẩm thành công", products)
             );
@@ -44,6 +44,14 @@ public class ProductController {
     public static class AdminProductController {
         @Autowired
         private ProductService productService;
+
+        @GetMapping
+        public ResponseEntity<ResponseModel> getAllProducts() {
+            List<ProductModel> products = productService.getAllProducts();
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseModel(true, "Lấy danh sách sản phẩm thành công", products)
+            );
+        }
 
         @PostMapping
         @PreAuthorize("hasRole('ADMIN')")
@@ -58,7 +66,7 @@ public class ProductController {
         public ResponseEntity<ResponseModel> updateProduct(@PathVariable Integer id, @RequestBody ProductModel product) {
             product.setId(id);
             return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseModel(true, "Cập nhật sản phẩm thành công", productService.updateProduct(product))
+                new ResponseModel(true, "Cập nhật sản phẩm thành công", productService.updateProduct(id, product))
             );
         }
 

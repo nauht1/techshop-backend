@@ -11,8 +11,4 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/admin/product")
 @RequiredArgsConstructor
 public class AdminProductController {
-    @GetMapping("/all")
-    public ResponseEntity<ResponseModel> getProducts() {
-        return ResponseEntity.ok(new ResponseModel(true, "Lay du lieu thanh cong", null));
-    }
 }

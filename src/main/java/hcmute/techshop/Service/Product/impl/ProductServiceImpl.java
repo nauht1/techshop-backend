@@ -67,6 +67,13 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public List<ProductModel> getAllActiveProducts() {
+        return productRepository.findAllByIsActiveTrue().stream()
+                .map(product -> modelMapper.map(product, ProductModel.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<ProductModel> getAllProducts() {
         return productRepository.findAll().stream()
                 .map(product -> modelMapper.map(product, ProductModel.class))
@@ -74,9 +81,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductModel updateProduct(ProductModel request) {
+    public ProductModel updateProduct(Integer id ,ProductModel request) {
         // Validate product existence
-        ProductEntity existingProduct = productRepository.findById(request.getId())
+        ProductEntity existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + request.getId()));
 
         // Fetch and validate category and brand

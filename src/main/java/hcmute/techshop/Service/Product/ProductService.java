@@ -8,7 +8,8 @@ public interface ProductService {
     ProductModel createProduct(ProductModel request);
     ProductModel getProductById(Integer id);
     List<ProductModel> getAllProducts();
-    ProductModel updateProduct(ProductModel request);
+    List<ProductModel> getAllActiveProducts();
+    ProductModel updateProduct(Integer Id, ProductModel request);
     void deleteProduct(Integer id);
     void softDeleteProduct(Integer id);
     void restoreProduct(Integer id);

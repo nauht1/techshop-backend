@@ -2,7 +2,8 @@ package hcmute.techshop.Controller.Product;
 
 import hcmute.techshop.Model.ResponseModel;
 import hcmute.techshop.Model.Product.ProductModel;
-import hcmute.techshop.Service.Product.ProductService;
+import hcmute.techshop.Service.Product.IProductService;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,37 +14,34 @@ import java.util.List;
 
 public class ProductController {
 
-    @Autowired
-    protected ProductService productService;
-
     @RestController
     @RequestMapping("/api/v1/product")
     public static class UserProductController {
         @Autowired
-        private ProductService productService;
+        private IProductService productService;
 
         @GetMapping("/{id}")
         public ResponseEntity<ResponseModel> getProductById(@PathVariable Integer id) {
             ProductModel product = productService.getProductById(id);
             return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseModel(true, "Lấy sản phẩm thành công", product)
+                    new ResponseModel(true, "Lấy sản phẩm thành công", product)
             );
         }
-    
+
         @GetMapping
         public ResponseEntity<ResponseModel> getAllProducts() {
             List<ProductModel> products = productService.getAllActiveProducts();
             return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseModel(true, "Lấy danh sách sản phẩm thành công", products)
+                    new ResponseModel(true, "Lấy danh sách sản phẩm thành công", products)
             );
         }
     }
-    
+
     @RestController
     @RequestMapping("/api/v1/admin/product")
     public static class AdminProductController {
         @Autowired
-        private ProductService productService;
+        private IProductService productService;
 
         @GetMapping
         public ResponseEntity<ResponseModel> getAllProducts() {

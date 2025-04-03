@@ -12,7 +12,7 @@ public interface IProductAttribute {
     List<ProductAttributeResponseProjection> getAll();
     ProductAttributeResponseProjection getById(Integer id);
     List<ProductAttributeResponseProjection> getByProductId(Integer id);
-    ProductAttributeResponseProjection save(ProductAttributeAddNewRequestModel model);
+    ProductAttributeResponseModel save(ProductAttributeAddNewRequestModel model);
     ProductAttributeResponseModel update(ProductAttributeUpadteRequestModel model);
     ProductAttributeResponseModel delete(Integer id);
 }

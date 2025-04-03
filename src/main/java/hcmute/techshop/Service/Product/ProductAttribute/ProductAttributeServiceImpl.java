@@ -45,7 +45,7 @@ public class ProductAttributeServiceImpl implements IProductAttribute {
 
     @Override
     @Transactional
-    public ProductAttributeResponseProjection save(ProductAttributeAddNewRequestModel model) {
+    public ProductAttributeResponseModel save(ProductAttributeAddNewRequestModel model) {
         ProductEntity product = productRepository.findById(model.getProductId())
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
@@ -58,7 +58,7 @@ public class ProductAttributeServiceImpl implements IProductAttribute {
         ProductAttributeEntity savedEntity = repository.save(newEntity);
 
         // Sử dụng mapper để chuyển đổi entity sang DTO
-        return productAttributeMapper.map(newEntity, ProductAttributeResponseProjection.class);
+        return productAttributeMapper.map(newEntity, ProductAttributeResponseModel.class);
     }
 
 

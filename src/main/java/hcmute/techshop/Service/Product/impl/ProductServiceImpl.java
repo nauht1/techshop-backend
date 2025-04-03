@@ -99,7 +99,7 @@ public class ProductServiceImpl implements IProductService {
     public ProductModel updateProduct(Integer id ,ProductModel request) {
         // Validate product existence
         ProductEntity existingProduct = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + request.getId()));
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 
         // Fetch and validate category and brand
         CategoryEntity category = categoryRepository.findById(request.getCategoryId())

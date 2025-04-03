@@ -3,7 +3,6 @@ package hcmute.techshop.Controller.Product;
 import hcmute.techshop.Model.ResponseModel;
 import hcmute.techshop.Model.Product.ProductModel;
 import hcmute.techshop.Service.Product.IProductService;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,6 +53,7 @@ public class ProductController {
         @PostMapping
         @PreAuthorize("hasRole('ADMIN')")
         public ResponseEntity<ResponseModel> createProduct(@RequestBody ProductModel product) {
+            System.out.print("Name: " + product.getName() + " " + " category: " +product.getCategoryId());
             return ResponseEntity.status(HttpStatus.CREATED).body(
                 new ResponseModel(true, "Thêm sản phẩm thành công", productService.createProduct(product))
             );

@@ -32,6 +32,10 @@ public class UserTrackingAspect {
 
         UserEntity currentUser = getUserFromServletFilter();
 
+        if (currentUser.getId() == -1) {
+            System.out.println("Skipping tracking for anonymous user");
+            return;
+        }
         String action = joinPoint.getSignature().toShortString();
         String timestamp = Instant.now().toString();
         String apiPath = request.getRequestURI();
@@ -57,11 +61,12 @@ public class UserTrackingAspect {
 
     public UserEntity getUserFromServletFilter() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new AccessDeniedException("You are not authenticated.");
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+            UserEntity anonymousUser = new UserEntity();
+            anonymousUser.setId(-1); // Dummy ID for anonymous
+            anonymousUser.setUsername("anonymous");
+            return anonymousUser;
         }
-        UserEntity currentUser = (UserEntity) authentication.getPrincipal();
-        return currentUser;
+        return (UserEntity) authentication.getPrincipal();
     }
 }

@@ -34,5 +34,5 @@ public interface IProductCommentService {
     boolean permanentDeleteComment(Integer id, String email);
 
     // Admin bật/tắt trạng thái một bình luận bất kỳ
-    boolean adminToggleCommentStatus(Integer id, String adminEmail);
+    boolean adminToggleCommentStatus(Integer id);
 }

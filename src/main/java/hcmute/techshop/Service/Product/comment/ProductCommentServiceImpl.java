@@ -133,11 +133,6 @@ public class ProductCommentServiceImpl implements IProductCommentService {
                 UserEntity admin = userRepository.findByEmail(adminEmail)
                                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin admin"));
 
-                // Kiểm tra xem người dùng có vai trò admin không
-                if (!admin.getRole().equals(Role.ROLE_ADMIN)) {
-                        throw new IllegalStateException("Bạn không có quyền admin để thực hiện chức năng này");
-                }
-
                 List<ProductCommentEntity> comments = productCommentRepository.findByProduct(product);
 
                 return comments.stream()
@@ -194,14 +189,7 @@ public class ProductCommentServiceImpl implements IProductCommentService {
         }
 
         @Override
-        public boolean adminToggleCommentStatus(Integer id, String adminEmail) {
-                UserEntity admin = userRepository.findByEmail(adminEmail)
-                                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin admin"));
-
-                if (!admin.getRole().equals(Role.ROLE_ADMIN)) {
-                        throw new IllegalStateException("Bạn không có quyền admin để thực hiện chức năng này");
-                }
-
+        public boolean adminToggleCommentStatus(Integer id) {
                 ProductCommentEntity comment = productCommentRepository.findById(id)
                                 .orElseThrow(() -> new IllegalArgumentException("Bình luận không tồn tại"));
 
@@ -216,10 +204,7 @@ public class ProductCommentServiceImpl implements IProductCommentService {
         public List<ProductCommentModel> getAllCommentsForAdmin(String adminEmail) {
                 UserEntity admin = userRepository.findByEmail(adminEmail)
                                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin admin"));
-
-                if (!admin.getRole().equals(Role.ROLE_ADMIN)) {
-                        throw new IllegalStateException("Bạn không có quyền admin để thực hiện chức năng này");
-                }
+               
                 List<ProductCommentEntity> comments = productCommentRepository.findAll();
                 if (comments.isEmpty()) {
                     throw new IllegalArgumentException("Danh sách bình luận rỗng");

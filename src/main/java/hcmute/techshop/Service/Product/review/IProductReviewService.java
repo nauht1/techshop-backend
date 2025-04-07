@@ -32,5 +32,5 @@ public interface IProductReviewService {
     boolean permanentDeleteReview(Integer id, String username);
     
     // Admin bật/tắt trạng thái một đánh giá bất kỳ
-    boolean adminToggleReviewStatus(Integer id, String adminEmail);
+    boolean adminToggleReviewStatus(Integer id);
 }

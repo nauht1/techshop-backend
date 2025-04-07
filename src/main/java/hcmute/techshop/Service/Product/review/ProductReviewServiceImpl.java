@@ -149,11 +149,6 @@ public class ProductReviewServiceImpl implements IProductReviewService {
         UserEntity admin = userRepository.findByEmail(adminEmail)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin admin"));
                 
-        // Kiểm tra xem người dùng có vai trò admin không
-        if (!admin.getRole().equals(Role.ROLE_ADMIN)) {
-            throw new IllegalStateException("Bạn không có quyền admin để thực hiện chức năng này");
-        }
-        
         List<ProductReviewEntity> reviews = productReviewRepository.findByProduct(product);
         
         return reviews.stream()
@@ -210,13 +205,7 @@ public class ProductReviewServiceImpl implements IProductReviewService {
     }
 
     @Override
-    public boolean adminToggleReviewStatus(Integer id, String adminEmail) {
-        UserEntity admin = userRepository.findByEmail(adminEmail)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin admin"));
-
-        if (!admin.getRole().equals(Role.ROLE_ADMIN)) {
-            throw new IllegalStateException("Bạn không có quyền admin để thực hiện chức năng này");
-        }
+    public boolean adminToggleReviewStatus(Integer id) {
 
         ProductReviewEntity review = productReviewRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Đánh giá không tồn tại"));
@@ -232,9 +221,6 @@ public class ProductReviewServiceImpl implements IProductReviewService {
         UserEntity admin = userRepository.findByEmail(adminEmail)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin admin"));
 
-        if (!admin.getRole().equals(Role.ROLE_ADMIN)) {
-            throw new IllegalStateException("Bạn không có quyền admin để thực hiện chức năng này");
-        }
         List<ProductReviewEntity> reviews = productReviewRepository.findAll();
         if (reviews.isEmpty()) {
             throw new IllegalArgumentException("Danh sách đánh giá rỗng");

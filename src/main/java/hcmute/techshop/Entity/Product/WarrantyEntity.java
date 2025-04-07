@@ -35,6 +35,8 @@ public class WarrantyEntity {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private LocalDateTime updatedAt;
+    
+    private String cancellationReason;
 
     private boolean isActive = true;
 }

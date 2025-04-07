@@ -1,6 +1,5 @@
 package hcmute.techshop.Service.Tracking;
 
-import hcmute.techshop.Entity.Auth.TrackingEntity;
 import hcmute.techshop.Entity.Auth.UserTracking;
 
 import java.util.List;

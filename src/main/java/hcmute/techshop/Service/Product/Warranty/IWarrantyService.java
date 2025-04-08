@@ -12,12 +12,12 @@ import java.util.List;
 public interface IWarrantyService {
     // Tạo bảo hành
     WarrantyModel createWarranty(CreateWarrantyRequest request);
-    // Lấy bảo hành theo id
-    WarrantyModel getWarrantyById(Integer id);
-    // Lấy bảo hành theo mã
-    WarrantyModel getWarrantyByCode(String wcode);
-    // Lấy tất cả bảo hành
-    Page<WarrantyModel> getAllWarranties(Pageable pageable);
+    // Lấy bảo hành theo id dùng chung cho admin và user (admin xem tất cả, user xem của mình bảo hành isActive = true)
+    WarrantyModel getWarrantyById(Integer id, boolean isAdmin);
+    // Lấy bảo hành theo mã dùng chung cho admin và user (admin xem tất cả, user xem của mình bảo hành isActive = true)
+    WarrantyModel getWarrantyByCode(String wcode, boolean isAdmin);
+    // Lấy tất cả bảo hành (admin) lấy tất cả bảo hành có tùy chọn lọc isActive = false
+    Page<WarrantyModel> getAllWarranties(Pageable pageable, boolean includeDeleted);
     // Lấy bảo hành theo user
     List<WarrantyModel> getWarrantiesByUser(Integer userId);
     // Lấy bảo hành theo user email (cho người dùng xem bảo hành của họ)

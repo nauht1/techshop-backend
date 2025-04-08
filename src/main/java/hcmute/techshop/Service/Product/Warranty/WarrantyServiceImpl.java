@@ -63,25 +63,45 @@ public class WarrantyServiceImpl implements IWarrantyService {
 
     // Lấy bảo hành theo id
     @Override
-    public WarrantyModel getWarrantyById(Integer id) {
-        WarrantyEntity warranty = warrantyRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy bảo hành với ID: " + id));
+    public WarrantyModel getWarrantyById(Integer id, boolean isAdmin) {
+        WarrantyEntity warranty;
+        if (isAdmin) {
+            // Admin xem được tất cả bảo hành
+            warranty = warrantyRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy bảo hành với ID: " + id));
+        } else {
+            // User thường chỉ xem được bảo hành isActive = true
+            warranty = warrantyRepository.findByIdAndIsActiveTrue(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy bảo hành với ID: " + id));
+        }
+        
         return convertToModel(warranty);
     }
 
     // Lấy bảo hành theo mã
     @Override
-    public WarrantyModel getWarrantyByCode(String wcode) {
-        WarrantyEntity warranty = warrantyRepository.findByWcode(wcode)
-            .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy bảo hành với mã " + wcode));
+    public WarrantyModel getWarrantyByCode(String wcode, boolean isAdmin) {
+        WarrantyEntity warranty;
+        if (isAdmin) {
+            warranty = warrantyRepository.findByWcode(wcode)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy bảo hành với mã " + wcode));
+        } else {
+            warranty = warrantyRepository.findByWcodeAndIsActiveTrue(wcode)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy bảo hành với mã " + wcode));
+        }
         return convertToModel(warranty);
     }
 
     // Lấy tất cả bảo hành
     @Override
-    public Page<WarrantyModel> getAllWarranties(Pageable pageable) {
-        return warrantyRepository.findByIsActiveTrue(pageable)
-            .map(this::convertToModel);
+    public Page<WarrantyModel> getAllWarranties(Pageable pageable, boolean includeDeleted) {
+        if (includeDeleted==true) {
+            return warrantyRepository.findAll(pageable)
+                .map(this::convertToModel);
+        } else {
+            return warrantyRepository.findByIsActiveTrue(pageable)
+                .map(this::convertToModel);
+        }
     }
 
     // Lấy bảo hành theo user

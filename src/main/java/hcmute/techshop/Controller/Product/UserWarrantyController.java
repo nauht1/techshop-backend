@@ -33,7 +33,7 @@ public class UserWarrantyController {
         }
         
         String currentUserEmail = authentication.getName();
-        
+        // Lấy danh sách bảo hành của người dùng hiện tại theo email và chỉ xem được bảo hành isActive = true
         List<WarrantyModel> warranties = warrantyService.getWarrantiesByUserEmail(currentUserEmail);
         return ResponseEntity.ok(new ResponseModel(true, "Lấy danh sách bảo hành thành công", warranties));
     }
@@ -57,7 +57,7 @@ public class UserWarrantyController {
         
         String currentUserEmail = authentication.getName();
         
-        WarrantyModel warranty = warrantyService.getWarrantyById(id);
+        WarrantyModel warranty = warrantyService.getWarrantyById(id, false);
         
         // Kiểm tra xem bảo hành có thuộc về người dùng hiện tại không
         if (!warranty.getUserEmail().equals(currentUserEmail)) {
@@ -80,7 +80,7 @@ public class UserWarrantyController {
         }
         
         try {
-            WarrantyModel warranty = warrantyService.getWarrantyByCode(wcode);
+            WarrantyModel warranty = warrantyService.getWarrantyByCode(wcode, false);
             return ResponseEntity.ok(new ResponseModel(true, "Kiểm tra bảo hành thành công", warranty));
         } catch (Exception e) {
             return ResponseEntity.ok(new ResponseModel(false, "Không tìm thấy thông tin bảo hành với mã " + wcode, null));

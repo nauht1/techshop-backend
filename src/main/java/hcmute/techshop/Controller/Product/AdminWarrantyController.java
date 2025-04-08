@@ -87,7 +87,7 @@ public class AdminWarrantyController {
             throw new BadRequestException("ID bảo hành phải là số dương");
         }
         
-        WarrantyModel warranty = warrantyService.getWarrantyById(id);
+        WarrantyModel warranty = warrantyService.getWarrantyById(id, true);
         return ResponseEntity.ok(new ResponseModel(true, "Lấy thông tin bảo hành thành công", warranty));
     }
     
@@ -102,17 +102,18 @@ public class AdminWarrantyController {
             throw new BadRequestException("Mã bảo hành phải có ít nhất 3 ký tự");
         }
         
-        WarrantyModel warranty = warrantyService.getWarrantyByCode(wcode);
+        WarrantyModel warranty = warrantyService.getWarrantyByCode(wcode, true);
         return ResponseEntity.ok(new ResponseModel(true, "Lấy thông tin bảo hành thành công", warranty));
     }
     
-    // Admin lấy tất cả bảo hành với phân trang và sắp xếp
+    // Admin lấy tất cả bảo hành với phân trang và sắp xếp mặc định là id tăng dần và không bao gồm bảo hành đã xóa
     @GetMapping
     public ResponseEntity<ResponseModel> getAllWarranties(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "id") String sortBy,
-            @RequestParam(defaultValue = "desc") String direction) {
+            @RequestParam(defaultValue = "asc") String direction,
+            @RequestParam(defaultValue = "false") boolean includeDeleted) {
         
         if (page < 0) {
             throw new BadRequestException("Số trang phải lớn hơn hoặc bằng 0");
@@ -131,7 +132,7 @@ public class AdminWarrantyController {
             Sort.Direction.ASC : Sort.Direction.DESC;
             
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
-        Page<WarrantyModel> warranties = warrantyService.getAllWarranties(pageable);
+        Page<WarrantyModel> warranties = warrantyService.getAllWarranties(pageable, includeDeleted);
         
         return ResponseEntity.ok(new ResponseModel(true, "Lấy danh sách bảo hành thành công", warranties));
     }
@@ -171,7 +172,7 @@ public class AdminWarrantyController {
     public ResponseEntity<ResponseModel> getWarrantiesByStatus(
             @PathVariable String status,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "20") int size) {
         
         if (status == null || status.trim().isEmpty()) {
             throw new BadRequestException("Trạng thái bảo hành không được để trống");
@@ -338,7 +339,7 @@ public class AdminWarrantyController {
     public ResponseEntity<ResponseModel> searchWarranties(
             @RequestParam String keyword,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "20") int size) {
         
         if (keyword == null || keyword.trim().isEmpty()) {
             throw new BadRequestException("Từ khóa tìm kiếm không được để trống");
@@ -358,7 +359,7 @@ public class AdminWarrantyController {
     @GetMapping("/expired")
     public ResponseEntity<ResponseModel> getExpiredWarranties(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "20") int size) {
         
         if (page < 0) {
             throw new BadRequestException("Số trang phải lớn hơn hoặc bằng 0");
@@ -370,11 +371,11 @@ public class AdminWarrantyController {
         return ResponseEntity.ok(new ResponseModel(true, "Lấy danh sách bảo hành hết hạn thành công", warranties));
     }
     
-    // Admin lấy danh sách bảo hành sắp hết hạn
+    // Admin lấy danh sách bảo hành sắp hết hạn mặc định là endDate tăng dần
     @GetMapping("/about-to-expire")
     public ResponseEntity<ResponseModel> getWarrantiesAboutToExpire(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "endDate") String sortBy,
             @RequestParam(defaultValue = "asc") String direction) {
         

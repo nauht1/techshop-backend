@@ -1,11 +1,15 @@
 package hcmute.techshop.Service.User;
 
 import hcmute.techshop.Entity.Auth.UserEntity;
+import hcmute.techshop.Entity.Auth.UserTracking;
 import hcmute.techshop.Mapper.UserMapper;
 import hcmute.techshop.Model.User.ProfileRequest;
 import hcmute.techshop.Model.User.ProfileResponse;
 import hcmute.techshop.Repository.Auth.UserRepository;
+import hcmute.techshop.Repository.Auth.UserTrackingRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl implements IUserService{
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final UserTrackingRepository userTrackingRepository;
     @Override
     @Transactional
     public ProfileResponse updateUserProfileService(Integer id, ProfileRequest request) {
@@ -53,4 +58,14 @@ public class UserServiceImpl implements IUserService{
         return currentUser;
     }
 
+    public void deleteUser(Integer id) {
+        if (!userRepository.existsById(id.longValue())) {
+            throw new IllegalArgumentException("User with ID " + id + " not found");
+        }
+        userRepository.deleteById(id.longValue());
+    }
+
+    public Page<UserTracking> getUserActivity(Integer userId, PageRequest pageRequest) {
+        return userTrackingRepository.findByUserId(userId.longValue(), pageRequest);
+    }
 }

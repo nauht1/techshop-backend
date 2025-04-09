@@ -7,4 +7,5 @@ import hcmute.techshop.Model.User.ProfileResponse;
 public interface IUserService {
     ProfileResponse updateUserProfileService(Integer id, ProfileRequest request);
     ProfileResponse getProfileUser(Integer id);
+    void deleteUser(Integer id);
 }

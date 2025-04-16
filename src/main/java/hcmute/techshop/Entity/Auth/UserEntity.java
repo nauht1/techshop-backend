@@ -1,6 +1,7 @@
 package hcmute.techshop.Entity.Auth;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import hcmute.techshop.Entity.Product.UserFavoriteEntity;
 import hcmute.techshop.Entity.Shipping.AddressEntity;
 import hcmute.techshop.Entity.Cart.CartEntity;
 import hcmute.techshop.Enum.AuthProvider;
@@ -61,6 +62,11 @@ public class UserEntity implements UserDetails {
     @ToString.Exclude
     @JsonIgnore
     private List<AddressEntity> addresses = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    @ToString.Exclude
+    private List<UserFavoriteEntity> favorites = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

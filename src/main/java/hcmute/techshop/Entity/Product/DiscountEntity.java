@@ -18,7 +18,7 @@ import java.util.List;
 public class DiscountEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;  // Sửa Integer thành Long
 
     private String code;
     private Integer quantity;

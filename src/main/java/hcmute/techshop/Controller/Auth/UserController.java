@@ -42,32 +42,6 @@ public class UserController {
         return ResponseEntity.ok(userService.updateUserProfileService(id, profileRequest));
     }
 
-    @GetMapping("/profile")
-    public ResponseEntity<ResponseModel> getCurrentUserProfile() {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
-                throw new IllegalStateException("User not authenticated");
-            }
-            UserEntity currentUser = (UserEntity) authentication.getPrincipal();
-            ProfileResponse userProfile = userService.getProfileUser(currentUser.getId().intValue());
-            return ResponseEntity.ok(
-                    ResponseModel.builder()
-                            .success(true)
-                            .message("Get user profile successfully")
-                            .body(userProfile)
-                            .build()
-            );
-        } catch (Exception e) {
-            return ResponseEntity.ok(
-                    ResponseModel.builder()
-                            .success(false)
-                            .message("Failed to get user profile: " + e.getMessage())
-                            .build()
-            );
-        }
-    }
-
     @GetMapping("/activity")
     public ResponseEntity<ResponseModel> getUserActivity(
             @RequestParam(defaultValue = "0") int page,

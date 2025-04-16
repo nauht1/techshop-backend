@@ -3,11 +3,13 @@ package hcmute.techshop.Service.User;
 import hcmute.techshop.Entity.Auth.UserEntity;
 import hcmute.techshop.Entity.Auth.UserTracking;
 import hcmute.techshop.Mapper.UserMapper;
+import hcmute.techshop.Model.Auth.UserModel;
 import hcmute.techshop.Model.User.ProfileRequest;
 import hcmute.techshop.Model.User.ProfileResponse;
 import hcmute.techshop.Repository.Auth.UserRepository;
 import hcmute.techshop.Repository.Auth.UserTrackingRepository;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.AccessDeniedException;
@@ -22,6 +24,7 @@ public class UserServiceImpl implements IUserService{
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final UserTrackingRepository userTrackingRepository;
+    private final ModelMapper modelMapper;
     @Override
     @Transactional
     public ProfileResponse updateUserProfileService(Integer id, ProfileRequest request) {
@@ -33,7 +36,7 @@ public class UserServiceImpl implements IUserService{
                     .orElseThrow(() -> new RuntimeException("User not found"));
             userMapper.updateUserFromUser(user, request);
             userRepository.save(user);
-            return ProfileResponse.builder().message("Update profile successful").user(user).build();
+            return ProfileResponse.builder().message("Update profile successful").user(mapperUserToUserModel(user)).build();
         }catch (RuntimeException exception) {
             throw new RuntimeException(exception.getMessage());
         }
@@ -42,7 +45,7 @@ public class UserServiceImpl implements IUserService{
     @Override
     public ProfileResponse getProfileUser(Integer id) {
         UserEntity currentUser = ChecAuthenticationForCurrentUser(id);
-        return ProfileResponse.builder().message("Update profile successful").user(currentUser).build();
+        return ProfileResponse.builder().message("Update profile successful").user(mapperUserToUserModel(currentUser)).build();
     }
 
     private UserEntity ChecAuthenticationForCurrentUser(Integer id) {
@@ -56,6 +59,9 @@ public class UserServiceImpl implements IUserService{
             throw new AccessDeniedException("You are not authorized to access this profile.");
         }
         return currentUser;
+    }
+    private UserModel mapperUserToUserModel(UserEntity user) {
+        return modelMapper.map(user, UserModel.class);
     }
 
     public void deleteUser(Integer id) {

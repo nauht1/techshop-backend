@@ -41,11 +41,11 @@ public class AddressServiceImpl implements IAddressService {
         address.setProvince(request.getProvince());
 
         // Handle shipping method if provided
-        if (request.getShippingMethodId() != null) {
-            ShippingMethodEntity shippingMethod = shippingRepository.findById(request.getShippingMethodId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Phương thức vận chuyển không tồn tại"));
-            address.setShippingMethod(shippingMethod);
-        }
+//        if (request.getShippingMethodId() != null) {
+//            ShippingMethodEntity shippingMethod = shippingRepository.findById(request.getShippingMethodId())
+//                    .orElseThrow(() -> new ResourceNotFoundException("Phương thức vận chuyển không tồn tại"));
+//            address.setShippingMethod(shippingMethod);
+//        }
 
         // Check if this is the first address for the user
         List<AddressEntity> existingAddresses = addressRepository.findByUser(user);
@@ -81,13 +81,13 @@ public class AddressServiceImpl implements IAddressService {
         address.setProvince(request.getProvince());
 
         // Handle shipping method if provided
-        if (request.getShippingMethodId() != null) {
-            ShippingMethodEntity shippingMethod = shippingRepository.findById(request.getShippingMethodId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Phương thức vận chuyển không tồn tại"));
-            address.setShippingMethod(shippingMethod);
-        } else {
-            address.setShippingMethod(null);
-        }
+//        if (request.getShippingMethodId() != null) {
+//            ShippingMethodEntity shippingMethod = shippingRepository.findById(request.getShippingMethodId())
+//                    .orElseThrow(() -> new ResourceNotFoundException("Phương thức vận chuyển không tồn tại"));
+//            address.setShippingMethod(shippingMethod);
+//        } else {
+//            address.setShippingMethod(null);
+//        }
 
         // If request wants to set this as default
         if (request.isDefault() && !address.isDefault()) {
@@ -159,8 +159,8 @@ public class AddressServiceImpl implements IAddressService {
                 .district(entity.getDistrict())
                 .province(entity.getProvince())
                 .isDefault(entity.isDefault())
-                .shippingMethodId(entity.getShippingMethod() != null ? entity.getShippingMethod().getId() : null)
-                .shippingMethodName(entity.getShippingMethod() != null ? entity.getShippingMethod().getName() : null)
+//                .shippingMethodId(entity.getShippingMethod() != null ? entity.getShippingMethod().getId() : null)
+//                .shippingMethodName(entity.getShippingMethod() != null ? entity.getShippingMethod().getName() : null)
                 .build();
     }
 }

@@ -1,10 +1,10 @@
 package hcmute.techshop.Service.Product.comment;
 
+import java.util.List;
+
 import hcmute.techshop.Model.Product.AddCommentRequest;
 import hcmute.techshop.Model.Product.ProductCommentModel;
 import hcmute.techshop.Model.Product.UpdateCommentRequest;
-
-import java.util.List;
 
 public interface IProductCommentService {
 
@@ -34,5 +34,5 @@ public interface IProductCommentService {
     boolean permanentDeleteComment(Integer id, String email);
 
     // Admin bật/tắt trạng thái một bình luận bất kỳ
-    boolean adminToggleCommentStatus(Integer id, String adminEmail);
+    boolean adminToggleCommentStatus(Integer id);
 }

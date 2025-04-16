@@ -1,14 +1,17 @@
 package hcmute.techshop.Service.Product.ProductVariant;
 
-import hcmute.techshop.Entity.Product.ProductVariantEntity;
-import hcmute.techshop.Model.Product.ProductVariantModel;
-
 import java.util.List;
 
+import hcmute.techshop.Model.Product.ProductVariant.ProductVariantAddNewRequestModel;
+import hcmute.techshop.Model.Product.ProductVariant.ProductVariantResponseModel;
+import hcmute.techshop.Model.Product.ProductVariant.ProductVariantResponseProjection;
+import hcmute.techshop.Model.Product.ProductVariant.ProductVariantUpdateRequestModel;
+
 public interface IProductVariantService {
-    List<ProductVariantEntity> getAll();
-    ProductVariantEntity getById(long id);
-    ProductVariantEntity addProductVariant(ProductVariantModel productVariant);
-    ProductVariantEntity updateProductVariant(Long id, ProductVariantModel productVariant);
-    void deleteProductVariant(Long id);
+    List<ProductVariantResponseProjection> getAll();
+    ProductVariantResponseProjection getById(Integer id);
+    List<ProductVariantResponseProjection> getByProductId(Integer productId);
+    ProductVariantResponseModel addProductVariant(ProductVariantAddNewRequestModel model);
+    ProductVariantResponseModel updateProductVariant(Integer id, ProductVariantUpdateRequestModel model);
+    ProductVariantResponseModel deleteProductVariant(Integer id);
 }

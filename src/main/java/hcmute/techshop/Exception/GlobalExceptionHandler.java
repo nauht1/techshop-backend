@@ -1,10 +1,11 @@
 package hcmute.techshop.Exception;
 
-import hcmute.techshop.Model.ResponseModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import hcmute.techshop.Model.ResponseModel;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -24,6 +25,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ResponseModel> handleGeneralException(Exception ex) {
         return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong in server: " + ex.getMessage());
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ResponseModel> handleIllegalArgument(IllegalArgumentException ex) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, "You provided not enough argument: "+ex.getMessage());
     }
 
     // hàm hỗ trợ format response

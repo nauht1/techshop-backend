@@ -2,15 +2,21 @@ package hcmute.techshop.Entity.Product;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.lang.Nullable;
+
+import java.sql.Date;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Table(name = "products")
+@Builder
 public class ProductEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

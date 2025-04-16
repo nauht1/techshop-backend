@@ -1,10 +1,10 @@
 package hcmute.techshop.Service.Product.review;
 
+import java.util.List;
+
 import hcmute.techshop.Model.Product.AddReviewRequest;
 import hcmute.techshop.Model.Product.ProductReviewModel;
 import hcmute.techshop.Model.Product.UpdateReviewRequest;
-
-import java.util.List;
 
 public interface IProductReviewService {
     // Thêm đánh giá sản phẩm (yêu cầu người dùng đã mua sản phẩm)
@@ -32,5 +32,5 @@ public interface IProductReviewService {
     boolean permanentDeleteReview(Integer id, String username);
     
     // Admin bật/tắt trạng thái một đánh giá bất kỳ
-    boolean adminToggleReviewStatus(Integer id, String adminEmail);
+    boolean adminToggleReviewStatus(Integer id);
 }

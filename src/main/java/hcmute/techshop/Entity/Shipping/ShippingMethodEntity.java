@@ -1,12 +1,13 @@
 package hcmute.techshop.Entity.Shipping;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "shipping_methods")
@@ -22,10 +23,6 @@ public class ShippingMethodEntity {
     private Double costPerKm;
     private Float speed;
     private boolean isActive = true;
-
-
-    @OneToMany(mappedBy = "shippingMethod", cascade = CascadeType.ALL)
-    private List<AddressEntity> addresses;
 
     public String getMethodName() {
         return null;

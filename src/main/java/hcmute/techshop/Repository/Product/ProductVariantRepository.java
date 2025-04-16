@@ -1,12 +1,13 @@
 package hcmute.techshop.Repository.Product;
 
-import hcmute.techshop.Entity.Product.ProductVariantEntity;
-import hcmute.techshop.Model.Product.ProductVariant.ProductVariantResponseProjection;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import hcmute.techshop.Entity.Product.ProductVariantEntity;
+import hcmute.techshop.Model.Product.ProductVariant.ProductVariantResponseProjection;
 
 @Repository
 public interface ProductVariantRepository extends JpaRepository<ProductVariantEntity, Integer> {

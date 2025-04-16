@@ -79,7 +79,7 @@ public class AuthenticateServiceImpl implements IAuthenticateService {
                 )
         );
         // Find if the user is existed?
-        var user = userRepository.findByEmail(authRequest.getEmail())
+        UserEntity user = userRepository.findByEmail(authRequest.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         // Check if the user is enabled?
@@ -88,8 +88,8 @@ public class AuthenticateServiceImpl implements IAuthenticateService {
         }
 
         // Generate JWT and refresh tokens
-        var jwtToken = jwtService.generateToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
+        String jwtToken = jwtService.generateToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
 
         revokeAllUserTokens(user);
         saveUserToken(user, jwtToken);

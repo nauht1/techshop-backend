@@ -1,21 +1,27 @@
 package hcmute.techshop.Controller.Product;
 
-import hcmute.techshop.Entity.Product.ProductVariantEntity;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import hcmute.techshop.Exception.IllegalArgumentException;
 import hcmute.techshop.Exception.ResourceNotFoundException;
 import hcmute.techshop.Model.Product.ProductVariant.ProductVariantAddNewRequestModel;
-import hcmute.techshop.Model.Product.ProductVariant.ProductVariantResponseModel;
 import hcmute.techshop.Model.Product.ProductVariant.ProductVariantResponseProjection;
 import hcmute.techshop.Model.Product.ProductVariant.ProductVariantUpdateRequestModel;
 import hcmute.techshop.Model.ResponseModel;
 import hcmute.techshop.Service.Product.ProductVariant.IProductVariantService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/admin/product-variant")

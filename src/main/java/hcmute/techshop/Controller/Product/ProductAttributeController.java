@@ -1,17 +1,20 @@
 package hcmute.techshop.Controller.Product;
 
-import hcmute.techshop.Entity.Product.ProductAttributeEntity;
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import hcmute.techshop.Exception.IllegalArgumentException;
 import hcmute.techshop.Exception.ResourceNotFoundException;
 import hcmute.techshop.Model.Product.ProductAttribute.ProductAttributeResponseProjection;
 import hcmute.techshop.Model.ResponseModel;
-import hcmute.techshop.Repository.Product.ProductAttributeRepository;
 import hcmute.techshop.Service.Product.ProductAttribute.IProductAttribute;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor

@@ -1,5 +1,6 @@
 package hcmute.techshop.Controller.Auth;
 
+import hcmute.techshop.Entity.Auth.UserEntity;
 import hcmute.techshop.Model.Auth.*;
 import hcmute.techshop.Service.Auth.AuthenticateServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +15,14 @@ public class AuthenticateController {
     private final AuthenticateServiceImpl authenticateService;
 
     @PostMapping("/register")
-    public ResponseEntity<RegisterResponse> register(@RequestBody RegisterDTO registerDTO) {
-        return ResponseEntity.ok(authenticateService.register(registerDTO));
+    public ResponseEntity<?> register(@RequestBody RegisterDTO registerDTO) {
+        UserEntity user = new UserEntity();
+        System.out.println(registerDTO);
+        user.setUsername(registerDTO.getUsername());
+        user.setEmail(registerDTO.getEmail());
+
+        authenticateService.register(registerDTO);
+        return ResponseEntity.ok(user);
     }
 
     @PostMapping("/login")

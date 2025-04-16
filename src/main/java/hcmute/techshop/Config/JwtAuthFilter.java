@@ -1,5 +1,6 @@
 package hcmute.techshop.Config;
 
+import hcmute.techshop.Model.User.UserDetailsServiceImpl;
 import hcmute.techshop.Repository.Auth.TokenRepository;
 import hcmute.techshop.Service.Auth.JwtService;
 import jakarta.servlet.FilterChain;
@@ -20,13 +21,13 @@ import java.io.IOException;
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
-    private final UserDetailsService userDetailsService;
+    private final UserDetailsServiceImpl userDetailsServiceimpl;
     private final TokenRepository tokenRepository;
 
-    public JwtAuthFilter(TokenRepository tokenRepository, JwtService jwtService, UserDetailsService userDetailsService) {
+    public JwtAuthFilter(TokenRepository tokenRepository, JwtService jwtService, UserDetailsServiceImpl userDetailsService) {
         this.tokenRepository = tokenRepository;
         this.jwtService = jwtService;
-        this.userDetailsService = userDetailsService;
+        this.userDetailsServiceimpl = userDetailsService;
     }
 
     @Override
@@ -48,15 +49,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         jwt = authHeader.substring(7);
-        userEmail = jwtService.extractUsername(jwt);
+        userEmail = jwtService.extractUserEmail(jwt);
 
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+            UserDetails userDetails = this.userDetailsServiceimpl.loadByEmail(userEmail);
             var isTokenValid = tokenRepository.findByToken(jwt)
                     .map(t -> !t.isExpired() && !t.isRevoked())
                     .orElse(false);
 
-            if (jwtService.isTokenValid(jwt, userDetails) && isTokenValid) {
+            if (jwtService.isTokenValidWithEmail(jwt, userEmail) && isTokenValid) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
@@ -65,6 +66,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 authToken.setDetails(
                         new WebAuthenticationDetailsSource().buildDetails(request)
                 );
+
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }

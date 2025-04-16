@@ -1,10 +1,10 @@
 package hcmute.techshop.Service.Product.comment;
 
+import java.util.List;
+
 import hcmute.techshop.Model.Product.AddCommentRequest;
 import hcmute.techshop.Model.Product.ProductCommentModel;
 import hcmute.techshop.Model.Product.UpdateCommentRequest;
-
-import java.util.List;
 
 public interface IProductCommentService {
 

@@ -1,12 +1,11 @@
 package hcmute.techshop.Service.Product.ProductAttribute;
 
-import hcmute.techshop.Entity.Product.ProductAttributeEntity;
+import java.util.List;
+
 import hcmute.techshop.Model.Product.ProductAttribute.ProductAttributeAddNewRequestModel;
 import hcmute.techshop.Model.Product.ProductAttribute.ProductAttributeResponseModel;
 import hcmute.techshop.Model.Product.ProductAttribute.ProductAttributeResponseProjection;
 import hcmute.techshop.Model.Product.ProductAttribute.ProductAttributeUpadteRequestModel;
-
-import java.util.List;
 
 public interface IProductAttribute {
     List<ProductAttributeResponseProjection> getAll();

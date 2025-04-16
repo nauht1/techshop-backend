@@ -1,10 +1,7 @@
 package hcmute.techshop.Config;
 
-import hcmute.techshop.Config.oauth2.HttpCookieOauth2AuthorizationRequestRepository;
-import hcmute.techshop.Config.oauth2.ImplementOauth2UserService;
-import hcmute.techshop.Config.oauth2.OAuth2AuthenticationFailureHandler;
-import hcmute.techshop.Config.oauth2.OAuth2AuthenticationSuccessHandler;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -20,7 +17,11 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.List;
+import hcmute.techshop.Config.oauth2.HttpCookieOauth2AuthorizationRequestRepository;
+import hcmute.techshop.Config.oauth2.ImplementOauth2UserService;
+import hcmute.techshop.Config.oauth2.OAuth2AuthenticationFailureHandler;
+import hcmute.techshop.Config.oauth2.OAuth2AuthenticationSuccessHandler;
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity

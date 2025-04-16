@@ -1,10 +1,10 @@
 package hcmute.techshop.Service.Product.review;
 
+import java.util.List;
+
 import hcmute.techshop.Model.Product.AddReviewRequest;
 import hcmute.techshop.Model.Product.ProductReviewModel;
 import hcmute.techshop.Model.Product.UpdateReviewRequest;
-
-import java.util.List;
 
 public interface IProductReviewService {
     // Thêm đánh giá sản phẩm (yêu cầu người dùng đã mua sản phẩm)

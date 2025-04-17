@@ -2,6 +2,7 @@ package hcmute.techshop.Repository.Order;
 
 import hcmute.techshop.Entity.Auth.UserEntity;
 import hcmute.techshop.Entity.Order.OrderEntity;
+import hcmute.techshop.Enum.OrderStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,5 +12,5 @@ import java.util.List;
 public interface OrderRepository extends JpaRepository<OrderEntity, Integer> {
     List<OrderEntity> findByUserId(Integer userId);
 
-    List<OrderEntity> findByUserAndStatusAndIsActive(UserEntity user, String status, boolean isActive);
+    List<OrderEntity> findByUserAndStatusAndIsActive(UserEntity user, OrderStatus status, boolean isActive);
 }

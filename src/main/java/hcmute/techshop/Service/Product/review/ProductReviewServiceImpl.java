@@ -4,6 +4,7 @@ import hcmute.techshop.Entity.Auth.UserEntity;
 import hcmute.techshop.Entity.Order.OrderEntity;
 import hcmute.techshop.Entity.Product.ProductEntity;
 import hcmute.techshop.Entity.Product.ProductReviewEntity;
+import hcmute.techshop.Enum.OrderStatus;
 import hcmute.techshop.Enum.Role;
 import hcmute.techshop.Model.Product.AddReviewRequest;
 import hcmute.techshop.Model.Product.ProductReviewModel;
@@ -32,7 +33,7 @@ public class ProductReviewServiceImpl implements IProductReviewService {
     @Override
     public ProductReviewModel addReview(AddReviewRequest request, String email) {
         // Lấy thông tin người dùng
-        UserEntity user = userRepository.findByEmail(email)
+        UserEntity user = userRepository.findByUsername(email)
                 .orElseThrow(() -> new IllegalArgumentException("Người dùng không tồn tại"));
 
         // Lấy thông tin sản phẩm
@@ -73,7 +74,7 @@ public class ProductReviewServiceImpl implements IProductReviewService {
     @Override
     public ProductReviewModel updateReview(UpdateReviewRequest request, String email) {
         // Lấy thông tin người dùng
-        UserEntity user = userRepository.findByEmail(email)
+        UserEntity user = userRepository.findByUsername(email)
                 .orElseThrow(() -> new IllegalArgumentException("Người dùng không tồn tại"));
 
         // Lấy thông tin đánh giá (không cần lọc theo isActive)
@@ -102,7 +103,7 @@ public class ProductReviewServiceImpl implements IProductReviewService {
     @Override
     public boolean toggleReviewStatus(Integer id, String email) {
         // Lấy thông tin người dùng
-        UserEntity user = userRepository.findByEmail(email)
+        UserEntity user = userRepository.findByUsername(email)
                 .orElseThrow(() -> new IllegalArgumentException("Người dùng không tồn tại"));
 
         // Lấy thông tin đánh giá
@@ -126,7 +127,7 @@ public class ProductReviewServiceImpl implements IProductReviewService {
         ProductEntity product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("Sản phẩm không tồn tại"));
 
-        UserEntity user = userRepository.findByEmail(email)
+        UserEntity user = userRepository.findByUsername(email)
                 .orElseThrow(() -> new IllegalArgumentException("Người dùng không tồn tại"));
 
         List<ProductReviewEntity> reviews = productReviewRepository.findByProduct(product);
@@ -146,7 +147,7 @@ public class ProductReviewServiceImpl implements IProductReviewService {
         ProductEntity product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("Sản phẩm không tồn tại"));
         
-        UserEntity admin = userRepository.findByEmail(adminEmail)
+        UserEntity admin = userRepository.findByUsername(adminEmail)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin admin"));
                 
         List<ProductReviewEntity> reviews = productReviewRepository.findByProduct(product);
@@ -163,7 +164,7 @@ public class ProductReviewServiceImpl implements IProductReviewService {
     @Override
     public ProductReviewModel getReviewById(Integer id, String email) {
         // Lấy thông tin người dùng
-        UserEntity user = userRepository.findByEmail(email)
+        UserEntity user = userRepository.findByUsername(email)
                 .orElseThrow(() -> new IllegalArgumentException("Người dùng không tồn tại"));
 
         // Lấy thông tin đánh giá
@@ -190,7 +191,7 @@ public class ProductReviewServiceImpl implements IProductReviewService {
 
     @Override
     public boolean permanentDeleteReview(Integer id, String email) {
-        UserEntity user = userRepository.findByEmail(email)
+        UserEntity user = userRepository.findByUsername(email)
                 .orElseThrow(() -> new IllegalArgumentException("Người dùng không tồn tại"));
 
         ProductReviewEntity review = productReviewRepository.findById(id)
@@ -218,7 +219,7 @@ public class ProductReviewServiceImpl implements IProductReviewService {
 
     @Override
     public List<ProductReviewModel> getAllReviewsForAdmin(String adminEmail) {
-        UserEntity admin = userRepository.findByEmail(adminEmail)
+        UserEntity admin = userRepository.findByUsername(adminEmail)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin admin"));
 
         List<ProductReviewEntity> reviews = productReviewRepository.findAll();
@@ -243,7 +244,7 @@ public class ProductReviewServiceImpl implements IProductReviewService {
      */
     private boolean hasUserPurchasedProduct(UserEntity user, ProductEntity product) {
         // Lấy tất cả đơn hàng của người dùng đã được hoàn thành
-        List<OrderEntity> userOrders = orderRepository.findByUserAndStatusAndIsActive(user, "Đã hoàn thành", true);
+        List<OrderEntity> userOrders = orderRepository.findByUserAndStatusAndIsActive(user, OrderStatus.DELIVERED, true);
 
         // Kiểm tra xem có đơn hàng nào chứa sản phẩm này không
         for (OrderEntity order : userOrders) {

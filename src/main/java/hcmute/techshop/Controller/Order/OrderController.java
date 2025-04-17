@@ -4,7 +4,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import hcmute.techshop.Model.Order.OrderModel;
+import hcmute.techshop.Model.Order.PlaceOrderRequest;
+import hcmute.techshop.Model.ResponseModel;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,13 +41,24 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<Map<String, Object>> placeOrder(@RequestBody OrderEntity order) {
-        OrderEntity placedOrder = orderService.placeOrder(order);
-        Map<String, Object> response = new HashMap<>();
-        response.put("success", true);
-        response.put("message", "Order placed successfully");
-        response.put("data", placedOrder);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<ResponseModel> placeOrder(@RequestBody PlaceOrderRequest request, Authentication auth) {
+        try {
+            OrderModel placedOrder = orderService.placeOrderByCOD(request, auth);
+
+            if (placedOrder == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new ResponseModel(false, "Đặt hàng thất bại", null));
+            }
+
+
+            return ResponseEntity.ok(new ResponseModel(true, "Đặt hàng thành công", placedOrder));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ResponseModel(false, e.getMessage(), null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ResponseModel(false, "Lỗi hệ thống: " + e.getMessage(), null));
+        }
     }
 }
 

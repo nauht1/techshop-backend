@@ -3,6 +3,7 @@ package hcmute.techshop.Entity.Order;
 import hcmute.techshop.Entity.Auth.UserEntity;
 import hcmute.techshop.Entity.Product.DiscountEntity;
 import hcmute.techshop.Entity.Shipping.ShippingMethodEntity;
+import hcmute.techshop.Enum.OrderStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -27,7 +28,10 @@ public class OrderEntity {
     private UserEntity user;
 
     private Double totalPrice;
-    private String status;
+
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
+
     private String shippingAddr;
 
     @ManyToOne

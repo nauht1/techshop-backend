@@ -21,6 +21,7 @@ public class ProductReviewModel {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean isOwner;
+    private Integer orderItemId;
     
     // Getter và setter bổ sung cho isOwner vì tên thuộc tính không theo quy ước
     public boolean isOwner() {

@@ -77,6 +77,26 @@ public class DatabaseInitializer implements CommandLineRunner {
             userRepository.save(user);
             System.out.println("Created default user account: user@techshop.com / user123");
         }
+
+        String userEmail1 = "user1@techshop.com";
+        Optional<UserEntity> existingUser1 = userRepository.findByEmail(userEmail1);
+
+        if (existingUser1.isEmpty()) {
+            UserEntity user1 = UserEntity.builder()
+                    .email(userEmail1)
+                    .username("user1")
+                    .password(passwordEncoder.encode("user123"))
+                    .firstname("Normal")
+                    .lastname("User1")
+                    .role(Role.ROLE_CUSTOMER)
+                    .isActive(true)
+                    .createdAt(LocalDateTime.now())
+                    .updatedAt(LocalDateTime.now())
+                    .build();
+
+            userRepository.save(user1);
+            System.out.println("Created another default user account: user1@techshop.com / user123");
+        }
     }
 
     private void createSampleProductsIfNotExists() {

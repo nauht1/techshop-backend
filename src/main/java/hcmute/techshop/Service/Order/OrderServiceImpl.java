@@ -13,6 +13,7 @@ import hcmute.techshop.Enum.PaymentStatus;
 import hcmute.techshop.Model.Order.OrderItemModel;
 import hcmute.techshop.Model.Order.OrderModel;
 import hcmute.techshop.Model.Order.PlaceOrderRequest;
+import hcmute.techshop.Model.PageResponse;
 import hcmute.techshop.Repository.Order.DiscountRepository;
 import hcmute.techshop.Repository.Order.OrderRepository;
 import hcmute.techshop.Repository.Payment.PaymentRepository;
@@ -20,6 +21,10 @@ import hcmute.techshop.Repository.Product.ProductRepository;
 import hcmute.techshop.Repository.Shipping.ShippingRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,8 +44,30 @@ public class OrderServiceImpl implements IOrderService {
     private final PaymentRepository paymentRepository;
 
     @Override
-    public List<OrderEntity> getOrdersByUserId(Integer userId) {
-        return orderRepository.findByUserId(userId);
+    public PageResponse<OrderModel> getOrders(OrderStatus orderStatus, int page, int size, Authentication auth) {
+        if (auth == null) throw new RuntimeException("Unauthorized");
+
+        UserEntity user = (UserEntity) auth.getPrincipal();
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+
+        Page<OrderEntity> orderPage;
+
+        if (orderStatus == null || orderStatus.name().equalsIgnoreCase("ALL")) {
+            orderPage = orderRepository.findByUserId(user.getId(), pageable);
+        } else {
+            orderPage = orderRepository.findByUserIdAndStatus(user.getId(), orderStatus, pageable);
+        }
+
+        List<OrderModel> orderModels = orderPage.getContent()
+                .stream()
+                .map(order -> modelMapper.map(order, OrderModel.class))
+                .toList();
+
+        return new PageResponse<>(
+                orderModels,
+                orderPage.getNumber(),
+                orderPage.getTotalPages()
+        );
     }
 
     @Override

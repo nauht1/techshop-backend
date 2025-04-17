@@ -4,8 +4,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import hcmute.techshop.Enum.OrderStatus;
 import hcmute.techshop.Model.Order.OrderModel;
 import hcmute.techshop.Model.Order.PlaceOrderRequest;
+import hcmute.techshop.Model.PageResponse;
 import hcmute.techshop.Model.ResponseModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,14 +32,16 @@ import lombok.RequiredArgsConstructor;
 public class OrderController {
     private final IOrderService orderService;
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<Map<String, Object>> getOrdersByUserId(@PathVariable Integer userId) {
-        List<OrderEntity> orders = orderService.getOrdersByUserId(userId);
-        Map<String, Object> response = new HashMap<>();
-        response.put("success", true);
-        response.put("message", "Get data successfully");
-        response.put("data", orders);
-        return ResponseEntity.ok(response);
+    @GetMapping()
+    public ResponseEntity<ResponseModel> getOrders(
+            @RequestParam(defaultValue = "ALL") String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            Authentication auth
+    ) {
+        OrderStatus orderStatus = status.equalsIgnoreCase("ALL") ? null : OrderStatus.valueOf(status);
+        PageResponse<OrderModel> orders = orderService.getOrders(orderStatus, page, size, auth);
+        return ResponseEntity.ok(new ResponseModel(true, "Lấy đơn hàng thành công", orders));
     }
 
     @PostMapping

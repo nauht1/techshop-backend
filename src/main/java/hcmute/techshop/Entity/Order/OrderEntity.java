@@ -48,7 +48,7 @@ public class OrderEntity {
     private LocalDateTime createdAt = LocalDateTime.now();
     private boolean isActive = true;
     private Double shippingFee;
-    private boolean isReviewed;
+
     public Double calculateShippingFee() {
         // Tính phí vận chuyển tạm thời dựa trên shippingMethod
         if (shippingMethod == null) {

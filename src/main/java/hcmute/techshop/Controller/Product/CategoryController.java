@@ -32,7 +32,7 @@ public class CategoryController {
 
         @GetMapping
         public ResponseEntity<ResponseModel> getAllCategories() {
-            List<CategoryModel> categories = categoryService.getAllCategories();
+            List<CategoryModel> categories = categoryService.getAllActiveCategories();
             return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseModel(true, "Lấy danh sách danh mục thành công", categories)
             );

@@ -62,6 +62,12 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    public List<CategoryModel> getAllActiveCategories() {
+        List<CategoryEntity> categories = categoryRepository.findAllByIsActiveTrue();
+        return categories.stream().map(category -> modelMapper.map(category, CategoryModel.class)).collect(Collectors.toList());
+    }
+
+    @Override
     public CategoryModel updateCategory(CategoryModel request) {
         CategoryEntity existingCategory = categoryRepository.findById(request.getId())
             .orElseThrow(() -> new RuntimeException("Category not found with id: " + request.getId()));

@@ -32,6 +32,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -62,14 +64,20 @@ public class OrderServiceImpl implements IOrderService {
                 .map(order -> {
                     OrderModel orderModel = modelMapper.map(order, OrderModel.class);
 
-                    List<OrderItemModel> itemModels = orderModel.getItems().stream()
+                    List<OrderItemModel> itemModels = order.getOrderItems().stream()
                             .map(item -> {
+                                ProductEntity product = item.getProduct();
+
                                 OrderItemModel itemModel = new OrderItemModel();
                                 itemModel.setId(item.getId());
-                                itemModel.setProduct(item.getProduct());
+                                itemModel.setProductId(product.getId());
+                                itemModel.setProductName(product.getName());
+                                itemModel.setProductPrice(product.getPrice());
+                                itemModel.setProductSalePrice(product.getSalePrice());
                                 itemModel.setQuantity(item.getQuantity());
                                 itemModel.setUnitPrice(item.getUnitPrice());
                                 itemModel.setReviewed(item.isReviewed());
+
                                 return itemModel;
                             }).toList();
 
@@ -117,7 +125,7 @@ public class OrderServiceImpl implements IOrderService {
         double totalPrice = 0.0;
 
         for (OrderItemModel itemRequest : request.getItems()) {
-            ProductEntity product = productRepository.findById(itemRequest.getProduct().getId())
+            ProductEntity product = productRepository.findById(itemRequest.getProductId())
                     .orElseThrow(() -> new RuntimeException("Product not found"));
 
             OrderItemEntity item = new OrderItemEntity();

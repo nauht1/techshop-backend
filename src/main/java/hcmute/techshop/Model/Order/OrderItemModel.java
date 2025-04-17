@@ -12,7 +12,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class OrderItemModel {
     private Integer id;
-    private Integer productId;
+    private ProductModel product;
     private Integer quantity;
     private Double unitPrice;
+    private boolean isReviewed;
 }

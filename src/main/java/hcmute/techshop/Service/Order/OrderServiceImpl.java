@@ -58,10 +58,24 @@ public class OrderServiceImpl implements IOrderService {
             orderPage = orderRepository.findByUserIdAndStatus(user.getId(), orderStatus, pageable);
         }
 
-        List<OrderModel> orderModels = orderPage.getContent()
-                .stream()
-                .map(order -> modelMapper.map(order, OrderModel.class))
-                .toList();
+        List<OrderModel> orderModels = orderPage.getContent().stream()
+                .map(order -> {
+                    OrderModel orderModel = modelMapper.map(order, OrderModel.class);
+
+                    List<OrderItemModel> itemModels = orderModel.getItems().stream()
+                            .map(item -> {
+                                OrderItemModel itemModel = new OrderItemModel();
+                                itemModel.setId(item.getId());
+                                itemModel.setProduct(item.getProduct());
+                                itemModel.setQuantity(item.getQuantity());
+                                itemModel.setUnitPrice(item.getUnitPrice());
+                                itemModel.setReviewed(item.isReviewed());
+                                return itemModel;
+                            }).toList();
+
+                    orderModel.setItems(itemModels);
+                    return orderModel;
+                }).toList();
 
         return new PageResponse<>(
                 orderModels,
@@ -103,7 +117,7 @@ public class OrderServiceImpl implements IOrderService {
         double totalPrice = 0.0;
 
         for (OrderItemModel itemRequest : request.getItems()) {
-            ProductEntity product = productRepository.findById(itemRequest.getProductId())
+            ProductEntity product = productRepository.findById(itemRequest.getProduct().getId())
                     .orElseThrow(() -> new RuntimeException("Product not found"));
 
             OrderItemEntity item = new OrderItemEntity();

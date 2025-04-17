@@ -2,9 +2,9 @@ package hcmute.techshop.Controller.Auth;
 
 import hcmute.techshop.Entity.Auth.UserEntity;
 import hcmute.techshop.Entity.Auth.UserTracking;
+import hcmute.techshop.Model.Auth.UserModel;
 import hcmute.techshop.Model.ResponseModel;
 import hcmute.techshop.Model.User.ProfileRequest;
-import hcmute.techshop.Model.User.ProfileResponse;
 import hcmute.techshop.Repository.Auth.UserRepository;
 import hcmute.techshop.Service.User.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -78,6 +79,26 @@ public class UserController {
                     ResponseModel.builder()
                             .success(false)
                             .message("Failed to get user activity: " + e.getMessage())
+                            .build()
+            );
+        }
+    }
+
+    @PutMapping("/{id}/avatar")
+    public ResponseEntity<?> updateAvatar(
+            @PathVariable Integer id,
+            @RequestParam("avatar") MultipartFile avatar) {
+        try {
+            userService.updateUserAvatar(id, avatar);
+            return ResponseEntity.ok(ResponseModel.builder()
+                    .success(true)
+                    .message("Get user activity successfully")
+                    .build());
+        } catch (Exception e) {
+            return ResponseEntity.ok(
+                    ResponseModel.builder()
+                            .success(false)
+                            .message("Failed to get update avatar: " + e.getMessage())
                             .build()
             );
         }

@@ -19,6 +19,7 @@ public class UserModel {
     private String phone;
     private boolean gender;
     private Role role;
+    private String avatar;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

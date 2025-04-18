@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 @Entity
@@ -54,7 +55,7 @@ public class UserEntity implements UserDetails {
     private LocalDateTime updatedAt = LocalDateTime.now();
 
     private boolean checkCode;
-    private String avatars;
+    private String avatar;
 
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private CartEntity cart;
@@ -71,6 +72,9 @@ public class UserEntity implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (role == null) {
+            return Collections.emptyList();
+        }
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
 

@@ -1,16 +1,15 @@
 package hcmute.techshop.Service.Product.review;
 
 import hcmute.techshop.Entity.Auth.UserEntity;
-import hcmute.techshop.Entity.Order.OrderEntity;
+import hcmute.techshop.Entity.Order.OrderItemEntity;
 import hcmute.techshop.Entity.Product.ProductEntity;
 import hcmute.techshop.Entity.Product.ProductReviewEntity;
-import hcmute.techshop.Enum.OrderStatus;
 import hcmute.techshop.Enum.Role;
 import hcmute.techshop.Model.Product.AddReviewRequest;
 import hcmute.techshop.Model.Product.ProductReviewModel;
 import hcmute.techshop.Model.Product.UpdateReviewRequest;
 import hcmute.techshop.Repository.Auth.UserRepository;
-import hcmute.techshop.Repository.Order.OrderRepository;
+import hcmute.techshop.Repository.Order.OrderItemRepository;
 import hcmute.techshop.Repository.Product.ProductRepository;
 import hcmute.techshop.Repository.Product.ProductReviewRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,7 +26,7 @@ public class ProductReviewServiceImpl implements IProductReviewService {
     private final ProductReviewRepository productReviewRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
-    private final OrderRepository orderRepository;
+    private final OrderItemRepository orderItemRepository;
 
     @Override
     public ProductReviewModel addReview(AddReviewRequest request, String email) {
@@ -40,30 +38,38 @@ public class ProductReviewServiceImpl implements IProductReviewService {
         ProductEntity product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new IllegalArgumentException("Sản phẩm không tồn tại"));
 
-        // Kiểm tra xem người dùng đã mua sản phẩm chưa
-        if (!hasUserPurchasedProduct(user, product)) {
-            throw new IllegalArgumentException("Bạn chưa mua sản phẩm này, không thể đánh giá");
+        // Kiểm tra xem người dùng đã từng mua sản phẩm này hay chưa
+        List<OrderItemEntity> purchasedItems = orderItemRepository.findByUserAndProduct(user, product);
+        if (purchasedItems.isEmpty()) {
+            throw new IllegalArgumentException("Bạn cần mua sản phẩm này trước khi có thể đánh giá.");
         }
-
-        // Kiểm tra xem người dùng đã đánh giá sản phẩm này chưa (bao gồm cả đánh giá đã
-        // ẩn)
-        Optional<ProductReviewEntity> existingReview = productReviewRepository.findByUserAndProduct(user, product);
-        if (existingReview.isPresent()) {
-            throw new IllegalArgumentException("Bạn đã đánh giá sản phẩm này rồi. Vui lòng cập nhật đánh giá hiện có.");
+        
+        // Lấy các OrderItem của sản phẩm chưa được đánh giá
+        List<OrderItemEntity> unreviewedItems = orderItemRepository.findUnreviewedItemsByProductAndUser(product, user);
+        if (unreviewedItems.isEmpty()) {
+            throw new IllegalArgumentException("Bạn đã đánh giá sản phẩm này rồi.");
         }
-
+        
+        // Lấy OrderItem đầu tiên chưa được đánh giá
+        OrderItemEntity orderItem = unreviewedItems.get(0);
+        
         // Tạo đánh giá mới
         ProductReviewEntity review = new ProductReviewEntity();
         review.setUser(user);
         review.setProduct(product);
+        review.setOrderItem(orderItem);
         review.setRating(request.getRating());
         review.setComment(request.getComment());
         review.setActive(true);
         review.setCreatedAt(LocalDateTime.now());
         review.setUpdatedAt(LocalDateTime.now());
 
-        // Lưu vào database
+        // Lưu đánh giá
         review = productReviewRepository.save(review);
+        
+        // Đánh dấu OrderItem là đã đánh giá
+        orderItem.setReviewed(true);
+        orderItemRepository.save(orderItem);
 
         // Chuyển đổi sang model và trả về
         ProductReviewModel model = mapToModel(review);
@@ -201,13 +207,18 @@ public class ProductReviewServiceImpl implements IProductReviewService {
             throw new IllegalStateException("Bạn không có quyền xóa vĩnh viễn đánh giá này");
         }
 
+        // Đặt lại trạng thái isReviewed của OrderItem thành false
+        OrderItemEntity orderItem = review.getOrderItem();
+        orderItem.setReviewed(false);
+        orderItemRepository.save(orderItem);
+
+        // Xóa đánh giá
         productReviewRepository.delete(review);
         return true;
     }
 
     @Override
     public boolean adminToggleReviewStatus(Integer id) {
-
         ProductReviewEntity review = productReviewRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Đánh giá không tồn tại"));
 
@@ -236,27 +247,6 @@ public class ProductReviewServiceImpl implements IProductReviewService {
     }
 
     /**
-     * Kiểm tra xem người dùng đã mua sản phẩm chưa
-     * 
-     * @param user    Người dùng
-     * @param product Sản phẩm
-     * @return true nếu người dùng đã mua sản phẩm
-     */
-    private boolean hasUserPurchasedProduct(UserEntity user, ProductEntity product) {
-        // Lấy tất cả đơn hàng của người dùng đã được hoàn thành
-        List<OrderEntity> userOrders = orderRepository.findByUserAndStatusAndIsActive(user, OrderStatus.DELIVERED, true);
-
-        // Kiểm tra xem có đơn hàng nào chứa sản phẩm này không
-        for (OrderEntity order : userOrders) {
-            if (order.getOrderItems().stream().anyMatch(item -> item.getProduct().getId().equals(product.getId()))) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * Chuyển đổi từ entity sang model
      * 
      * @param entity Entity cần chuyển đổi
@@ -274,6 +264,7 @@ public class ProductReviewServiceImpl implements IProductReviewService {
         model.setUpdatedAt(entity.getUpdatedAt());
         model.setUsername(entity.getUser().getUsername());
         model.setProductName(entity.getProduct().getName());
+        model.setOrderItemId(entity.getOrderItem().getId());
         return model;
     }
 }

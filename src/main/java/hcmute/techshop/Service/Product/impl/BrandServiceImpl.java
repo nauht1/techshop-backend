@@ -34,7 +34,7 @@ public class BrandServiceImpl implements BrandService {
         entity.setCountry(request.getCountry());
         entity.setBrandImg(request.getBrandImg());
         entity.setActive(true);
-        entity.setProducts(getProducts(request.getProducts()));
+        entity.setProducts(null);
         BrandEntity saved = brandRepository.save(entity);
         return modelMapper.map(saved, BrandModel.class);
     }
@@ -68,7 +68,6 @@ public class BrandServiceImpl implements BrandService {
         existing.setName(request.getName());
         existing.setCountry(request.getCountry());
         existing.setBrandImg(request.getBrandImg());
-        existing.setProducts(getProducts(request.getProducts()));
 
         BrandEntity updated = brandRepository.save(existing);
         return modelMapper.map(updated, BrandModel.class);

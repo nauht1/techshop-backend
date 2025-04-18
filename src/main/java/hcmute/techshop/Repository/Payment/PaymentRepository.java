@@ -1,4 +1,7 @@
 package hcmute.techshop.Repository.Payment;
 
-public interface PaymentRepository {
+import hcmute.techshop.Entity.Payment.PaymentEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface PaymentRepository extends JpaRepository<PaymentEntity, Integer> {
 }

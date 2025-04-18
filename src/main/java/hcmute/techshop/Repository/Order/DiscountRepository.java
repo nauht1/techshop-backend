@@ -1,9 +1,9 @@
-package hcmute.techshop.Repository.Product;
+package hcmute.techshop.Repository.Order;
 
 import hcmute.techshop.Entity.Product.DiscountEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface DiscountRepository extends JpaRepository<DiscountEntity, Long> {
+public interface DiscountRepository extends JpaRepository<DiscountEntity, Integer> {
 }

@@ -1,6 +1,7 @@
 package hcmute.techshop.Entity.Product;
 
 import hcmute.techshop.Entity.Auth.UserEntity;
+import hcmute.techshop.Entity.Order.OrderItemEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,6 +29,10 @@ public class ProductReviewEntity {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user; // 1 User có nhiều Reviews
+    
+    @ManyToOne
+    @JoinColumn(name = "order_item_id", nullable = false)
+    private OrderItemEntity orderItem; // Liên kết với OrderItem cụ thể
 
     private boolean isActive = true;
     private LocalDateTime createdAt;

@@ -1,11 +1,13 @@
 package hcmute.techshop.Entity.Order;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import hcmute.techshop.Entity.Auth.UserEntity;
 import hcmute.techshop.Entity.Product.DiscountEntity;
 import hcmute.techshop.Entity.Shipping.ShippingMethodEntity;
+import hcmute.techshop.Enum.OrderStatus;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -13,53 +15,45 @@ import java.util.List;
 
 @Entity
 @Table(name = "orders")
-@Getter
-@Setter
-@NoArgsConstructor
+@Data
 @AllArgsConstructor
-@JsonIgnoreProperties(value = {"id", "createdAt", "isActive"}, allowGetters = true)
+@NoArgsConstructor
 public class OrderEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
-    @Column(nullable = false)
     private Double totalPrice;
 
-    @Column(nullable = false)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
 
-    @Column(name = "shipping_addr", nullable = false)
     private String shippingAddr;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "shipping_method_id", nullable = false)
     private ShippingMethodEntity shippingMethod;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "discount_id")
     private DiscountEntity discount;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "order", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<OrderItemEntity> orderItems = new ArrayList<>();
 
-    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
-
-    @Column(name = "is_active")
     private boolean isActive = true;
-
-    @Column(name = "shipping_fee")
     private Double shippingFee;
 
-    // Tính phí ship nếu cần
     public Double calculateShippingFee() {
-        if (shippingMethod == null || shippingMethod.getMethodName() == null) return 5.0;
+        // Tính phí vận chuyển tạm thời dựa trên shippingMethod
+        if (shippingMethod == null) {
+            return 5.0; // Default fee
+        }
 
         switch (shippingMethod.getMethodName().toLowerCase()) {
             case "express":
@@ -69,10 +63,5 @@ public class OrderEntity {
             default:
                 return 5.0;
         }
-    }
-
-    // Setter chuẩn chỉnh
-    public void setIsActive(boolean isActive) {
-        this.isActive = isActive;
     }
 }

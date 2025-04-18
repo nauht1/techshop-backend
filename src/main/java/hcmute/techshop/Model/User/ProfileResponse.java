@@ -1,6 +1,6 @@
 package hcmute.techshop.Model.User;
 
-import hcmute.techshop.Entity.Auth.UserEntity;
+import hcmute.techshop.Model.Auth.UserModel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ProfileResponse {
     String message;
-    UserEntity user;
+    UserModel user;
 }

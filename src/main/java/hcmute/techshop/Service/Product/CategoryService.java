@@ -8,6 +8,7 @@ public interface CategoryService {
     CategoryModel createCategory(CategoryModel request);
     CategoryModel getCategoryById(Integer id);
     List<CategoryModel> getAllCategories();
+    List<CategoryModel> getAllActiveCategories();
     CategoryModel updateCategory(CategoryModel request);
     void deleteCategory(Integer id);
     void softDeleteCategory(Integer id);

@@ -31,15 +31,10 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryModel createCategory(CategoryModel request) {
         CategoryEntity savedCategory = categoryRepository.save(
             CategoryEntity.builder()
-                .id(request.getId())
                 .name(request.getName())
-                .subCategories(
-                    getSubcategories(request.getSubCategories())
-                )
+                .subCategories(null)
                 .parentCategory(null)
-                .products(
-                    getProducts(request.getProducts())
-                )
+                .products(null)
                 .isActive(true)
                 .build()
         );
@@ -62,12 +57,16 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    public List<CategoryModel> getAllActiveCategories() {
+        List<CategoryEntity> categories = categoryRepository.findAllByIsActiveTrue();
+        return categories.stream().map(category -> modelMapper.map(category, CategoryModel.class)).collect(Collectors.toList());
+    }
+
+    @Override
     public CategoryModel updateCategory(CategoryModel request) {
         CategoryEntity existingCategory = categoryRepository.findById(request.getId())
             .orElseThrow(() -> new RuntimeException("Category not found with id: " + request.getId()));
         existingCategory.setName(request.getName());
-        existingCategory.setSubCategories(getSubcategories(request.getSubCategories()));
-        existingCategory.setProducts(getProducts(request.getProducts()));
         return modelMapper.map(
             categoryRepository.save(existingCategory),
             CategoryModel.class

@@ -3,6 +3,7 @@ package hcmute.techshop.Service.Product.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,55 +17,89 @@ import hcmute.techshop.Service.Product.BrandService;
 
 @Service
 public class BrandServiceImpl implements BrandService {
+
     @Autowired
     private BrandRepository brandRepository;
 
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     @Override
-    public BrandEntity createBrand(BrandModel request) {
-        return brandRepository.save(
-            new BrandEntity(
-                request.getId(),
-                request.getName(),
-                request.getCountry(),
-                request.getBrandImg(),
-                request.isActive(),
-                getProducts(request.getProducts())
-            )
-        );
+    public BrandModel createBrand(BrandModel request) {
+        BrandEntity entity = new BrandEntity();
+        entity.setName(request.getName());
+        entity.setCountry(request.getCountry());
+        entity.setBrandImg(request.getBrandImg());
+        entity.setActive(true);
+        entity.setProducts(null);
+        BrandEntity saved = brandRepository.save(entity);
+        return modelMapper.map(saved, BrandModel.class);
     }
 
     @Override
-    public BrandEntity getBrandById(Integer id) {
-        return brandRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("BrandEntity not found with id: " + id));
+    public BrandModel getBrandById(Integer id) {
+        BrandEntity brand = brandRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Brand not found with id: " + id));
+        return modelMapper.map(brand, BrandModel.class);
     }
 
     @Override
-    public List<BrandEntity> getAllBrands() {
-        return brandRepository.findAll();
+    public List<BrandModel> getAllBrands() {
+        return brandRepository.findAll().stream()
+            .map(entity -> modelMapper.map(entity, BrandModel.class))
+            .collect(Collectors.toList());
     }
 
     @Override
-    public BrandEntity updateBrand(BrandModel request) {
-        BrandEntity existingBrand = getBrandById(request.getId());
-        existingBrand.setName(request.getName());
-        existingBrand.setCountry(request.getCountry());
-        existingBrand.setBrandImg(request.getBrandImg());
-        existingBrand.setActive(request.isActive());
-        existingBrand.setProducts(getProducts(request.getProducts()));
-        return brandRepository.save(existingBrand);
+    public List<BrandModel> getAllActiveBrands() {
+        return brandRepository.findAllByIsActiveTrue().stream()
+                .map(product -> modelMapper.map(product, BrandModel.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public BrandModel updateBrand(BrandModel request) {
+        BrandEntity existing = brandRepository.findById(request.getId())
+            .orElseThrow(() -> new RuntimeException("Brand not found with id: " + request.getId()));
+
+        existing.setName(request.getName());
+        existing.setCountry(request.getCountry());
+        existing.setBrandImg(request.getBrandImg());
+
+        BrandEntity updated = brandRepository.save(existing);
+        return modelMapper.map(updated, BrandModel.class);
     }
 
     @Override
     public void deleteBrand(Integer id) {
-        BrandEntity brand = getBrandById(id);
+        BrandEntity brand = brandRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Brand not found with id: " + id));
         brandRepository.delete(brand);
     }
 
+    @Override
+    public void softDeleteBrand(Integer id) {
+        BrandEntity brand = brandRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Brand not found with id: " + id));
+        brand.setActive(false);
+        brandRepository.save(brand);
+    }
+
+    @Override
+    public void restoreBrand(Integer id) {
+        BrandEntity brand = brandRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Brand not found with id: " + id));
+        brand.setActive(true);
+        brandRepository.save(brand);
+    }
+
     private List<ProductEntity> getProducts(List<ProductModel> products) {
+        if (products == null || products.isEmpty()) {
+            return List.of();
+        }
         List<Integer> ids = products.stream()
             .map(ProductModel::getId)
             .collect(Collectors.toList());

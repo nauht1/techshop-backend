@@ -1,24 +1,24 @@
 package hcmute.techshop.Service.Product.impl;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import hcmute.techshop.Entity.Product.*;
 import hcmute.techshop.Enum.PaymentStatus;
+import hcmute.techshop.Model.Product.*;
+import hcmute.techshop.Repository.Product.*;
+import hcmute.techshop.Service.UploadFile.IUploadFileService;
+import hcmute.techshop.Service.UploadFile.UploadFileServiceImpl;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import hcmute.techshop.Entity.Product.BrandEntity;
-import hcmute.techshop.Entity.Product.CategoryEntity;
-import hcmute.techshop.Entity.Product.ProductEntity;
-import hcmute.techshop.Model.Product.ProductModel;
-import hcmute.techshop.Repository.Product.BrandRepository;
-import hcmute.techshop.Repository.Product.CategoryRepository;
-import hcmute.techshop.Repository.Product.ProductRepository;
 import hcmute.techshop.Service.Product.IProductService;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class ProductServiceImpl implements IProductService {
@@ -34,11 +34,18 @@ public class ProductServiceImpl implements IProductService {
     @Autowired
     private ModelMapper modelMapper;
 
-    @Override
-    public ProductModel createProduct(ProductModel request) {
-        // Set ID to null for new product
-        request.setId(null);
+    @Autowired
+    private IUploadFileService uploadFileService;
 
+    @Autowired
+    private ProductImageRepository productImageRepository;
+    @Autowired
+    private ProductAttributeRepository productAttributeRepository;
+    @Autowired
+    private ProductVariantRepository productVariantRepository;
+
+    @Override
+    public ProductModel createProduct(CreateProductRequest request) throws IOException {
         // Fetch and validate category and brand
         CategoryEntity category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Category not found with id: " + request.getCategoryId()));
@@ -53,34 +60,71 @@ public class ProductServiceImpl implements IProductService {
                 .price(request.getPrice())
                 .salePrice(request.getSalePrice())
                 .stock(request.getStock())
-                .isActive(request.isActive())
+                .isActive(true)
                 .category(category)
                 .brand(brand)
                 .build();
 
         // Save and map back to model
         ProductEntity savedProduct = productRepository.save(productEntity);
-        return modelMapper.map(savedProduct, ProductModel.class);
+
+        // Save images
+        if (request.getImages() != null) {
+            for (MultipartFile file : request.getImages()) {
+                String imageUrl = uploadFileService.uploadImageMultipart(file);
+                ProductImageEntity image = new ProductImageEntity();
+                image.setProduct(savedProduct);
+                image.setImageUrl(imageUrl);
+                image.setAltText(savedProduct.getName());
+                productImageRepository.save(image);
+            }
+        }
+
+        // Save attributes
+        if (request.getAttributes() != null) {
+            for (AttributeDTO attr : request.getAttributes()) {
+                ProductAttributeEntity entity = new ProductAttributeEntity();
+                entity.setProduct(savedProduct);
+                entity.setAttName(attr.getAttName());
+                entity.setAttValue(attr.getAttValue());
+                productAttributeRepository.save(entity);
+            }
+        }
+
+        // Save variants
+        if (request.getVariants() != null) {
+            for (VariantDTO variant : request.getVariants()) {
+                ProductVariantEntity entity = new ProductVariantEntity();
+                entity.setProduct(savedProduct);
+                entity.setSku(variant.getSku());
+                entity.setVariantName(variant.getVariantName());
+                entity.setPrice(variant.getPrice());
+                entity.setStock(variant.getStock());
+                productVariantRepository.save(entity);
+            }
+        }
+
+        return convertToProductModel(savedProduct);
     }
 
     @Override
     public ProductModel getProductById(Integer id) {
         ProductEntity product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
-        return modelMapper.map(product, ProductModel.class);
+        return convertToProductModel(product);
     }
 
     @Override
     public List<ProductModel> getAllActiveProducts() {
         return productRepository.findAllByIsActiveTrue().stream()
-                .map(product -> modelMapper.map(product, ProductModel.class))
+                .map(this::convertToProductModel)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<ProductModel> getAllProducts() {
         return productRepository.findAll().stream()
-                .map(product -> modelMapper.map(product, ProductModel.class))
+                .map(this::convertToProductModel)
                 .collect(Collectors.toList());
     }
 
@@ -89,38 +133,74 @@ public class ProductServiceImpl implements IProductService {
         List<ProductModel> ret = new ArrayList<ProductModel>();
         List<ProductEntity> l = productRepository.findTopSellingProducts(PaymentStatus.SUCCESS, pageable);
         for (ProductEntity e : l) {
-            ProductModel p = modelMapper.map(e, ProductModel.class);
-            ret.add(p);
+//            ProductModel p = modelMapper.map(e, ProductModel.class);
+            ret.add(convertToProductModel(e));
         }
         return ret;
     }
 
     @Override
-    public ProductModel updateProduct(Integer id ,ProductModel request) {
+    public ProductModel updateProduct(Integer id, CreateProductRequest request) throws IOException {
         // Validate product existence
         ProductEntity existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 
-        // Fetch and validate category and brand
-        CategoryEntity category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Category not found with id: " + request.getCategoryId()));
+        if (request.getCategoryId() != null) {
+            CategoryEntity category = categoryRepository.findById(request.getCategoryId())
+                    .orElseThrow(() -> new RuntimeException("Category not found with id: " + request.getCategoryId()));
+            existingProduct.setCategory(category);
+        }
 
-        BrandEntity brand = brandRepository.findById(request.getBrandId())
-                .orElseThrow(() -> new RuntimeException("Brand not found with id: " + request.getBrandId()));
+        if (request.getBrandId() != null) {
+            BrandEntity brand = brandRepository.findById(request.getBrandId())
+                    .orElseThrow(() -> new RuntimeException("Brand not found with id: " + request.getBrandId()));
+            existingProduct.setBrand(brand);
+        }
 
-        // Update existing product
-        existingProduct.setName(request.getName());
-        existingProduct.setDescription(request.getDescription());
-        existingProduct.setPrice(request.getPrice());
-        existingProduct.setSalePrice(request.getSalePrice());
-        existingProduct.setStock(request.getStock());
-        existingProduct.setActive(request.isActive());
-        existingProduct.setCategory(category);
-        existingProduct.setBrand(brand);
+        if (request.getName() != null) existingProduct.setName(request.getName());
+        if (request.getDescription() != null) existingProduct.setDescription(request.getDescription());
+        if (request.getPrice() != null) existingProduct.setPrice(request.getPrice());
+        if (request.getSalePrice() != null) existingProduct.setSalePrice(request.getSalePrice());
+        if (request.getStock() != null) existingProduct.setStock(request.getStock());
 
-        // Save and map back to model
         ProductEntity updatedProduct = productRepository.save(existingProduct);
-        return modelMapper.map(updatedProduct, ProductModel.class);
+
+        if (request.getImages() != null) {
+            for (MultipartFile file : request.getImages()) {
+                String imageUrl = uploadFileService.uploadImageMultipart(file);
+                ProductImageEntity image = new ProductImageEntity();
+                image.setProduct(updatedProduct);
+                image.setImageUrl(imageUrl);
+                image.setAltText(updatedProduct.getName());
+                productImageRepository.save(image);
+            }
+        }
+
+        // Add new attributes if provided
+        if (request.getAttributes() != null) {
+            for (AttributeDTO attr : request.getAttributes()) {
+                ProductAttributeEntity attrEntity = new ProductAttributeEntity();
+                attrEntity.setProduct(updatedProduct);
+                attrEntity.setAttName(attr.getAttName());
+                attrEntity.setAttValue(attr.getAttValue());
+                productAttributeRepository.save(attrEntity);
+            }
+        }
+
+        // Add new variants if provided
+        if (request.getVariants() != null) {
+            for (VariantDTO variant : request.getVariants()) {
+                ProductVariantEntity variantEntity = new ProductVariantEntity();
+                variantEntity.setProduct(updatedProduct);
+                variantEntity.setSku(variant.getSku());
+                variantEntity.setVariantName(variant.getVariantName());
+                variantEntity.setPrice(variant.getPrice());
+                variantEntity.setStock(variant.getStock());
+                productVariantRepository.save(variantEntity);
+            }
+        }
+
+        return convertToProductModel(updatedProduct);
     }
 
     @Override
@@ -145,4 +225,45 @@ public class ProductServiceImpl implements IProductService {
         product.setActive(true);
         productRepository.save(product);
     }
+
+    private ProductModel convertToProductModel(ProductEntity product) {
+        // Map basic info
+        ProductModel model = modelMapper.map(product, ProductModel.class);
+        model.setCategoryId(product.getCategory().getId());
+        model.setCategoryName(product.getCategory().getName());
+        model.setBrandId(product.getBrand().getId());
+        model.setBrandName(product.getBrand().getName());
+
+        // Map images
+        model.setImages(productImageRepository.findByProductId(product.getId()).stream().map(image ->
+                ProductImageModel.builder()
+                        .id(image.getId())
+                        .imageUrl(image.getImageUrl())
+                        .altText(image.getAltText())
+                        .build()
+        ).collect(Collectors.toList()));
+
+        // Map attributes
+        model.setAttributes(productAttributeRepository.findByProductId(product.getId()).stream().map(attr ->
+                ProductAttributeModel.builder()
+                        .id(attr.getId())
+                        .attName(attr.getAttName())
+                        .attValue(attr.getAttValue())
+                        .build()
+        ).collect(Collectors.toList()));
+
+        // Map variants
+        model.setVariants(productVariantRepository.findByProductId(product.getId()).stream().map(variant ->
+                ProductVariantModel.builder()
+                        .id(variant.getId())
+                        .sku(variant.getSku())
+                        .variantName(variant.getVariantName())
+                        .price(variant.getPrice())
+                        .stock(variant.getStock())
+                        .build()
+        ).collect(Collectors.toList()));
+
+        return model;
+    }
+
 }

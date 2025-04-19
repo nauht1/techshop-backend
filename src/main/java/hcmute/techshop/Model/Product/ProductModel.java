@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @Builder
@@ -20,5 +22,10 @@ public class ProductModel {
     private Integer stock;
     private boolean isActive;
     private Integer categoryId;
+    private String categoryName;
     private Integer brandId;
+    private String brandName;
+    private List<ProductVariantModel> variants;
+    private List<ProductAttributeModel> attributes;
+    private List<ProductImageModel> images;
 }

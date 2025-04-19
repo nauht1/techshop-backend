@@ -15,4 +15,5 @@ public interface ProductAttributeRepository extends JpaRepository<ProductAttribu
     List<ProductAttributeResponseProjection> findAllProject();
     public ProductAttributeResponseProjection findProjectById(Integer id);
     public List<ProductAttributeResponseProjection> findAllProjectByProductId(int id);
+    List<ProductAttributeEntity> findByProductId(int productId);
 }

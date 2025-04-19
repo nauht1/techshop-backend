@@ -45,6 +45,14 @@ public class CategoryController {
         @Autowired
         private CategoryService categoryService;
 
+        @GetMapping
+        public ResponseEntity<ResponseModel> getAllCategories() {
+            List<CategoryModel> categories = categoryService.getAllCategories();
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseModel(true, "Lấy danh sách danh mục thành công", categories)
+            );
+        }
+
         @PostMapping
         @PreAuthorize("hasRole('ADMIN')")
         public ResponseEntity<ResponseModel> createCategory(@RequestBody CategoryModel category) {

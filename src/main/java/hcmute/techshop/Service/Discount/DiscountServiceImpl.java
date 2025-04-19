@@ -3,6 +3,7 @@ package hcmute.techshop.Service.Discount;
 import hcmute.techshop.Entity.Product.DiscountEntity;
 import hcmute.techshop.Model.PageResponse;
 import hcmute.techshop.Model.Product.Discount.AdminDiscountResponse;
+import hcmute.techshop.Model.Product.DiscountModel;
 import hcmute.techshop.Model.ResponseModel;
 import hcmute.techshop.Repository.Order.DiscountRepository;
 import hcmute.techshop.Repository.Order.OrderRepository;
@@ -105,5 +106,18 @@ public class DiscountServiceImpl implements IDiscountService {
         discount.setActive(false); // set inactive thay vì xóa
         discountRepository.save(discount);
         return new ResponseModel(true, "Xóa mã giảm giá thành công", null);
+    }
+
+    @Override
+    public List<DiscountModel> getAllDiscountsActive(boolean status) {
+        List<DiscountEntity> discounts;
+        if (!status) {
+            discounts = discountRepository.findAll();
+        } else {
+            discounts = discountRepository.findAllByIsActiveTrue();
+        }
+        return discounts.stream()
+                .map(obj -> modelMapper.map(obj, DiscountModel.class))
+                .collect(Collectors.toList());
     }
 }

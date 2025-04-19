@@ -2,6 +2,7 @@ package hcmute.techshop.Controller.Discount;
 
 import hcmute.techshop.Entity.Auth.UserEntity;
 import hcmute.techshop.Model.Cart.CartResponse;
+import hcmute.techshop.Model.Product.DiscountModel;
 import hcmute.techshop.Model.ResponseModel;
 import hcmute.techshop.Service.Discount.IDiscountService;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/admin/discounts")
@@ -66,5 +68,11 @@ public class AdminDiscountController {
     ) {
         ResponseModel resp = discountService.deleteDiscount(id);
         return ResponseEntity.ok(resp);
+    }
+
+    @GetMapping
+    public ResponseEntity<ResponseModel> getAllDiscount() {
+        List<DiscountModel> discountModels = discountService.getAllDiscountsActive(false);
+        return ResponseEntity.ok(new ResponseModel(true, "Lấy danh sách discount thành công", discountModels));
     }
 }

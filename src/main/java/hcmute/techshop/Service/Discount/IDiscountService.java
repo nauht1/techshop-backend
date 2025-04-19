@@ -1,9 +1,11 @@
 package hcmute.techshop.Service.Discount;
 
 import hcmute.techshop.Entity.Product.DiscountEntity;
+import hcmute.techshop.Model.Product.DiscountModel;
 import hcmute.techshop.Model.ResponseModel;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public interface IDiscountService {
     ResponseModel getDiscountList(String keyword, Integer startValue, Integer endValue,
@@ -17,4 +19,6 @@ public interface IDiscountService {
                                  LocalDateTime startDate, LocalDateTime endDate);
 
     ResponseModel deleteDiscount(Integer id);
+
+    List<DiscountModel> getAllDiscountsActive(boolean status);
 }

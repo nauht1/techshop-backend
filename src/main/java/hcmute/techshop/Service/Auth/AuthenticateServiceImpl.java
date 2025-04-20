@@ -46,6 +46,7 @@ public class AuthenticateServiceImpl implements IAuthenticateService {
             throw new RuntimeException("Email already in use");
         }
 
+        System.out.println("save user");
         // Save user
         var user = UserEntity.builder()
                 .email(registerDTO.getEmail())
@@ -58,7 +59,7 @@ public class AuthenticateServiceImpl implements IAuthenticateService {
                 .updatedAt(LocalDateTime.now())
                 .checkCode(false)
                 .build();
-
+        System.out.println("save user 1" + user);
         emailService.sendMailRegister(registerDTO.getEmail(), verificationCode);
         var savedUser = userRepository.save(user);
 
@@ -217,5 +218,13 @@ public class AuthenticateServiceImpl implements IAuthenticateService {
                 .builder()
                 .message("Updated password successfully")
                 .build();
+    }
+    @Override
+    public void checkTokenResetPassword(String token) {
+        var tokenEntity = tokenRepository.findValidTokenByTokenAndType(token, TokenType.FORGOT_PASSWORD)
+                .orElseThrow(() -> new BadRequestException("Invalid or expired token"));
+        if (tokenEntity.isExpired() || tokenEntity.isRevoked()) {
+            throw new RuntimeException("Token has expired or is revoked");
+        }
     }
 }

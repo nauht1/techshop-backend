@@ -74,7 +74,7 @@ class AdminOrderController {
 
     @PutMapping("/{orderId}/status")
     public ResponseEntity<Map<String, Object>> updateOrderStatus(@PathVariable Integer orderId, @RequestParam String status) {
-        OrderEntity updatedOrder = orderService.updateOrderStatus(orderId, status);
+        OrderModel updatedOrder = orderService.updateOrderStatus(orderId, status);
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
         response.put("message", "Order status updated successfully");
@@ -90,5 +90,17 @@ class AdminOrderController {
         response.put("message", "Order cancelled successfully");
         response.put("data", null);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<ResponseModel> getOrders(
+            @RequestParam(defaultValue = "ALL") String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            Authentication auth
+    ) {
+        OrderStatus orderStatus = status.equalsIgnoreCase("ALL") ? null : OrderStatus.valueOf(status);
+        PageResponse<OrderModel> orders = orderService.getAllOrders(orderStatus, page, size, auth);
+        return ResponseEntity.ok(new ResponseModel(true, "Lấy đơn hàng thành công", orders));
     }
 }

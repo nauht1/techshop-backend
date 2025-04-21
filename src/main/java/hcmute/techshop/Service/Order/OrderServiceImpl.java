@@ -8,7 +8,6 @@ import hcmute.techshop.Entity.Product.DiscountEntity;
 import hcmute.techshop.Entity.Product.ProductEntity;
 import hcmute.techshop.Entity.Shipping.ShippingMethodEntity;
 import hcmute.techshop.Enum.OrderStatus;
-import hcmute.techshop.Enum.PaymentMethod;
 import hcmute.techshop.Enum.PaymentStatus;
 import hcmute.techshop.Model.Order.OrderItemModel;
 import hcmute.techshop.Model.Order.OrderModel;
@@ -32,8 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -158,17 +156,62 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     @Override
-    public OrderEntity updateOrderStatus(Integer orderId, String status) {
-        return null;
-//        return orderRepository.findById(orderId)
-//                .map(order -> {
-//                    order.setStatus(status);
-//                    return orderRepository.save(order);
-//                }).orElseThrow(() -> new RuntimeException("Order not found"));
+    public OrderModel updateOrderStatus(Integer orderId, String status) {
+        Optional<OrderEntity> order = orderRepository.findById(orderId);
+        order.orElseThrow(() -> new RuntimeException("Order not found"));
+        order.get().setStatus(OrderStatus.valueOf(status));
+        OrderEntity savedOrder = orderRepository.save(order.get());
+        return modelMapper.map(savedOrder,OrderModel.class);
     }
 
     @Override
     public void cancelOrder(Integer orderId) {
         orderRepository.deleteById(orderId);
+    }
+    @Override
+    public PageResponse<OrderModel> getAllOrders(OrderStatus orderStatus, int page, int size, Authentication auth) {
+        if (auth == null) throw new RuntimeException("Unauthorized");
+
+        UserEntity user = (UserEntity) auth.getPrincipal();
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+
+        Page<OrderEntity> orderPage;
+
+        if (orderStatus == null || orderStatus.name().equalsIgnoreCase("ALL")) {
+            orderPage = orderRepository.findAll(pageable);
+        } else {
+            orderPage = orderRepository.findAllByStatus(pageable,orderStatus);
+        }
+
+        List<OrderModel> orderModels = orderPage.getContent().stream()
+                .map(order -> {
+                    OrderModel orderModel = modelMapper.map(order, OrderModel.class);
+
+                    List<OrderItemModel> itemModels = order.getOrderItems().stream()
+                            .map(item -> {
+                                ProductEntity product = item.getProduct();
+
+                                OrderItemModel itemModel = new OrderItemModel();
+                                itemModel.setId(item.getId());
+                                itemModel.setProductId(product.getId());
+                                itemModel.setProductName(product.getName());
+                                itemModel.setProductPrice(product.getPrice());
+                                itemModel.setProductSalePrice(product.getSalePrice());
+                                itemModel.setQuantity(item.getQuantity());
+                                itemModel.setUnitPrice(item.getUnitPrice());
+                                itemModel.setReviewed(item.isReviewed());
+
+                                return itemModel;
+                            }).toList();
+
+                    orderModel.setItems(itemModels);
+                    return orderModel;
+                }).toList();
+
+        return new PageResponse<>(
+                orderModels,
+                orderPage.getNumber(),
+                orderPage.getTotalPages()
+        );
     }
 }

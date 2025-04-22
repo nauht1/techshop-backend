@@ -78,7 +78,7 @@ class AdminOrderController {
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
         response.put("message", "Order status updated successfully");
-        response.put("data", updatedOrder);
+        response.put("body", updatedOrder);
         return ResponseEntity.ok(response);
     }
 
@@ -88,11 +88,11 @@ class AdminOrderController {
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
         response.put("message", "Order cancelled successfully");
-        response.put("data", null);
+        response.put("body", null);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<ResponseModel> getOrders(
             @RequestParam(defaultValue = "ALL") String status,
             @RequestParam(defaultValue = "0") int page,

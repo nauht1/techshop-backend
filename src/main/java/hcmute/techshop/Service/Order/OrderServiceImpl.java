@@ -9,6 +9,7 @@ import hcmute.techshop.Entity.Product.ProductEntity;
 import hcmute.techshop.Entity.Shipping.ShippingMethodEntity;
 import hcmute.techshop.Enum.OrderStatus;
 import hcmute.techshop.Enum.PaymentStatus;
+import hcmute.techshop.Model.Order.DashboardOrderResponse;
 import hcmute.techshop.Model.Order.OrderItemModel;
 import hcmute.techshop.Model.Order.OrderModel;
 import hcmute.techshop.Model.Order.PlaceOrderRequest;
@@ -160,6 +161,7 @@ public class OrderServiceImpl implements IOrderService {
         Optional<OrderEntity> order = orderRepository.findById(orderId);
         order.orElseThrow(() -> new RuntimeException("Order not found"));
         order.get().setStatus(OrderStatus.valueOf(status));
+        order.get().setUpdateTime(LocalDateTime.now());
         OrderEntity savedOrder = orderRepository.save(order.get());
         return modelMapper.map(savedOrder,OrderModel.class);
     }
@@ -213,5 +215,34 @@ public class OrderServiceImpl implements IOrderService {
                 orderPage.getNumber(),
                 orderPage.getTotalPages()
         );
+    }
+
+    @Override
+    public DashboardOrderResponse getTodayOrders(){
+//        if (auth == null) throw new RuntimeException("Unauthorized");
+
+
+//        Page<OrderEntity> orderPage = orderRepository;
+        LocalDateTime date = LocalDateTime.now();
+        LocalDateTime startOfDay = date.toLocalDate().atStartOfDay();
+        LocalDateTime endOfDay = date.plusDays(1).toLocalDate().atStartOfDay();
+
+        List<OrderEntity> orderPage = orderRepository.findAllByUpdateTimeBetween(startOfDay, endOfDay);
+        DashboardOrderResponse resp = new DashboardOrderResponse();
+        resp.setTotal(orderPage.size());
+        resp.setTotalConfirm(orderPage.stream().filter(obj->obj.getStatus().equals(OrderStatus.CONFIRMED)).toList().size());
+        resp.setTotalCanceled(orderPage.stream().filter(obj->obj.getStatus().equals(OrderStatus.CANCELED)).toList().size());
+        resp.setTotalPending(orderPage.stream().filter(obj->obj.getStatus().equals(OrderStatus.PENDING)).toList().size());
+        resp.setTotalDelivered(orderPage.stream().filter(obj->obj.getStatus().equals(OrderStatus.DELIVERED)).toList().size());
+        resp.setTotalDelivering(orderPage.stream().filter(obj->obj.getStatus().equals(OrderStatus.DELIVERING)).toList().size());
+        resp.setTotalProcess(orderPage.stream().filter(obj->obj.getStatus().equals(OrderStatus.PROCESSING)).toList().size());
+
+        return resp;
+//        return orderModels;
+//        return new PageResponse<>(
+//                orderModels,
+//                orderPage.getNumber(),
+//                orderPage.getTotalPages()
+//        );
     }
 }

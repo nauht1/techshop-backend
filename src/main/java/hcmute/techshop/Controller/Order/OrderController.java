@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import hcmute.techshop.Enum.OrderStatus;
+import hcmute.techshop.Model.Order.DashboardOrderResponse;
 import hcmute.techshop.Model.Order.OrderModel;
 import hcmute.techshop.Model.Order.PlaceOrderRequest;
 import hcmute.techshop.Model.PageResponse;
@@ -64,6 +65,12 @@ public class OrderController {
                     .body(new ResponseModel(false, "Lỗi hệ thống: " + e.getMessage(), null));
         }
     }
+    @GetMapping("/day")
+    public ResponseEntity<ResponseModel> getOrdersByDay(
+    ) {
+        DashboardOrderResponse orders = orderService.getTodayOrders();
+        return ResponseEntity.ok(new ResponseModel(true, "Lấy đơn hàng thành công", orders));
+    }
 }
 
 @RestController
@@ -103,4 +110,6 @@ class AdminOrderController {
         PageResponse<OrderModel> orders = orderService.getAllOrders(orderStatus, page, size, auth);
         return ResponseEntity.ok(new ResponseModel(true, "Lấy đơn hàng thành công", orders));
     }
+
+
 }

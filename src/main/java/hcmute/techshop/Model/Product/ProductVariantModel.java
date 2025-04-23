@@ -9,8 +9,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Builder
-public class ProductImageModel {
+public class ProductVariantModel {
     private Integer id;
-    private String imageUrl;
-    private String altText;
+    private String sku;
+    private String variantName;
+    private Double price;
+    private Integer stock;
 }

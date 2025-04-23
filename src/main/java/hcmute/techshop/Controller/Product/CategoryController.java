@@ -32,7 +32,7 @@ public class CategoryController {
 
         @GetMapping
         public ResponseEntity<ResponseModel> getAllCategories() {
-            List<CategoryModel> categories = categoryService.getAllCategories();
+            List<CategoryModel> categories = categoryService.getAllActiveCategories();
             return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseModel(true, "Lấy danh sách danh mục thành công", categories)
             );
@@ -44,6 +44,14 @@ public class CategoryController {
     public static class AdminCategoryController {
         @Autowired
         private CategoryService categoryService;
+
+        @GetMapping
+        public ResponseEntity<ResponseModel> getAllCategories() {
+            List<CategoryModel> categories = categoryService.getAllCategories();
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseModel(true, "Lấy danh sách danh mục thành công", categories)
+            );
+        }
 
         @PostMapping
         @PreAuthorize("hasRole('ADMIN')")

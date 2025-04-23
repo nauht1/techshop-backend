@@ -15,4 +15,5 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariantEn
     List<ProductVariantResponseProjection> findAllProject();
     ProductVariantResponseProjection findProjectById(Integer id);
     public List<ProductVariantResponseProjection> findAllProjectByProductId(int productId);
+    List<ProductVariantEntity> findByProductId(int productId);
 }

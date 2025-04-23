@@ -26,4 +26,6 @@ public class OrderItemEntity {
 
     private Integer quantity;
     private Double unitPrice;
+
+    private boolean isReviewed;
 }

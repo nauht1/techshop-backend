@@ -1,14 +1,21 @@
 package hcmute.techshop.Controller.Product;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import hcmute.techshop.Model.Product.AttributeDTO;
+import hcmute.techshop.Model.Product.CreateProductRequest;
+import hcmute.techshop.Model.Product.VariantDTO;
 import hcmute.techshop.Model.ResponseModel;
 import hcmute.techshop.Model.Product.ProductModel;
 import hcmute.techshop.Service.Product.IProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 public class ProductController {
@@ -50,21 +57,53 @@ public class ProductController {
             );
         }
 
-        @PostMapping
+        @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
         @PreAuthorize("hasRole('ADMIN')")
-        public ResponseEntity<ResponseModel> createProduct(@RequestBody ProductModel product) {
-            System.out.print("Name: " + product.getName() + " " + " category: " +product.getCategoryId());
+        public ResponseEntity<ResponseModel> createProduct(@ModelAttribute CreateProductRequest request) throws IOException {
+            if (request.getAttributesJson() != null) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                List<AttributeDTO> attributes = objectMapper.readValue(
+                        request.getAttributesJson(), new TypeReference<List<AttributeDTO>>() {});
+                request.setAttributes(attributes);
+            }
+
+            // Xử lý các đối tượng phức tạp như List<VariantDTO> từ JSON trong form-data
+            if (request.getVariantsJson() != null) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                List<VariantDTO> variants = objectMapper.readValue(
+                        request.getVariantsJson(), new TypeReference<List<VariantDTO>>() {});
+                request.setVariants(variants);
+            }
+
             return ResponseEntity.status(HttpStatus.CREATED).body(
-                new ResponseModel(true, "Thêm sản phẩm thành công", productService.createProduct(product))
+                new ResponseModel(true, "Thêm sản phẩm thành công", productService.createProduct(request))
             );
         }
 
-        @PutMapping("/{id}")
+        @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
         @PreAuthorize("hasRole('ADMIN')")
-        public ResponseEntity<ResponseModel> updateProduct(@PathVariable Integer id, @RequestBody ProductModel product) {
-            product.setId(id);
+        public ResponseEntity<ResponseModel> updateProduct(
+                @PathVariable Integer id,
+                @ModelAttribute CreateProductRequest request
+        ) throws IOException {
+            // Xử lý các đối tượng phức tạp như List<AttributeDTO> từ JSON trong form-data
+            if (request.getAttributesJson() != null) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                List<AttributeDTO> attributes = objectMapper.readValue(
+                        request.getAttributesJson(), new TypeReference<List<AttributeDTO>>() {});
+                request.setAttributes(attributes);
+            }
+
+            // Xử lý các đối tượng phức tạp như List<VariantDTO> từ JSON trong form-data
+            if (request.getVariantsJson() != null) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                List<VariantDTO> variants = objectMapper.readValue(
+                        request.getVariantsJson(), new TypeReference<List<VariantDTO>>() {});
+                request.setVariants(variants);
+            }
+
             return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseModel(true, "Cập nhật sản phẩm thành công", productService.updateProduct(id, product))
+                    new ResponseModel(true, "Cập nhật sản phẩm thành công", productService.updateProduct(id, request))
             );
         }
 

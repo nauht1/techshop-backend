@@ -1,6 +1,10 @@
 package hcmute.techshop.Service.Tracking;
 
+import hcmute.techshop.Entity.Auth.TrackingEntity;
+import hcmute.techshop.Entity.Auth.UserEntity;
 import hcmute.techshop.Entity.Auth.UserTracking;
+import hcmute.techshop.Enum.EventType;
+import hcmute.techshop.Repository.Auth.TrackingRepository;
 import hcmute.techshop.Repository.Auth.UserTrackingRepository;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +23,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TrackingService implements ITrackingService{
     private final UserTrackingRepository userTrackingRepository;
+    private final TrackingRepository trackingRepository;
+
     public Page<UserTracking> getAllTrackings(PageRequest pageRequest, Long userId, Long productId, LocalDateTime startDate, LocalDateTime endDate) {
         Specification<UserTracking> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -53,6 +59,18 @@ public class TrackingService implements ITrackingService{
     public void deleteTracking(Long id) {
         userTrackingRepository.deleteById(id);
     }
+
+    @Override
+    public void track(UserEntity user, EventType eventType, String eventData) {
+        TrackingEntity tracking = new TrackingEntity();
+        tracking.setUser(user);
+        tracking.setEventType(eventType);
+        tracking.setEventData(eventData);
+        tracking.setUpdatedAt(LocalDateTime.now());
+
+        trackingRepository.save(tracking);
+    }
+
 
     public long deleteOldTracking(LocalDateTime beforeDate) {
         return userTrackingRepository.deleteByTimestampBefore(beforeDate);
@@ -104,4 +122,5 @@ public class TrackingService implements ITrackingService{
                         )
                 ));
     }
+
 }

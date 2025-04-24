@@ -1,4 +1,7 @@
 package hcmute.techshop.Repository.Auth;
 
-public interface TrackingRepository {
+import hcmute.techshop.Entity.Auth.TrackingEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface TrackingRepository extends JpaRepository<TrackingEntity, Integer> {
 }

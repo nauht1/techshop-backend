@@ -3,6 +3,7 @@ package hcmute.techshop.Service.Auth;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hcmute.techshop.Entity.Auth.TokenEntity;
 import hcmute.techshop.Entity.Auth.UserEntity;
+import hcmute.techshop.Enum.EventType;
 import hcmute.techshop.Enum.Role;
 import hcmute.techshop.Enum.TokenType;
 import hcmute.techshop.Exception.BadRequestException;
@@ -10,6 +11,7 @@ import hcmute.techshop.Model.Auth.*;
 import hcmute.techshop.Repository.Auth.TokenRepository;
 import hcmute.techshop.Repository.Auth.UserRepository;
 import hcmute.techshop.Service.Email.EmailServiceImpl;
+import hcmute.techshop.Service.Tracking.TrackingService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +36,7 @@ public class AuthenticateServiceImpl implements IAuthenticateService {
     private final JwtService jwtService;
     private final TokenRepository tokenRepository;
     private final EmailServiceImpl emailService;
+    private final TrackingService trackingService;
 
     @Override
     public RegisterResponse register(RegisterDTO registerDTO) {
@@ -94,7 +97,7 @@ public class AuthenticateServiceImpl implements IAuthenticateService {
 
         revokeAllUserTokens(user);
         saveUserToken(user, jwtToken);
-
+        trackingService.track(user, EventType.LOGIN, "Đăng nhập thành công");
         return AuthResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)

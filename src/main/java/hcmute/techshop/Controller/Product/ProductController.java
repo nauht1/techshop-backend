@@ -9,6 +9,7 @@ import hcmute.techshop.Model.ResponseModel;
 import hcmute.techshop.Model.Product.ProductModel;
 import hcmute.techshop.Service.Product.IProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.relational.core.sql.In;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -133,6 +134,20 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseModel(true, "Đã phục hồi sản phẩm thành công", "Product ID " + id + " đã được phục hồi")
             );
+        }
+
+        @DeleteMapping("/image/{id}")
+        public ResponseEntity<ResponseModel> deleteProductImage(@PathVariable Integer id) {
+            try {
+                productService.deleteProductImage(id);
+                return ResponseEntity
+                        .status(HttpStatus.OK)
+                        .body(new ResponseModel(true, "Đã xóa ảnh thành công", null));
+            } catch (Exception e) {
+                return ResponseEntity
+                        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(new ResponseModel(true, "Something error", null));
+            }
         }
     }
 }

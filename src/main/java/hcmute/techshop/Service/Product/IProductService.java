@@ -16,4 +16,5 @@ public interface IProductService {
     void deleteProduct(Integer id);
     void softDeleteProduct(Integer id);
     void restoreProduct(Integer id);
+    void deleteProductImage(Integer id);
 }

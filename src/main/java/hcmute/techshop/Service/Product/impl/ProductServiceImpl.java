@@ -226,6 +226,14 @@ public class ProductServiceImpl implements IProductService {
         productRepository.save(product);
     }
 
+    @Override
+    public void deleteProductImage(Integer id) {
+        ProductImageEntity productImageEntity = productImageRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Image not found"));
+
+        productImageRepository.delete(productImageEntity);
+    }
+
     private ProductModel convertToProductModel(ProductEntity product) {
         // Map basic info
         ProductModel model = modelMapper.map(product, ProductModel.class);

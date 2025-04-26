@@ -2,17 +2,23 @@ package hcmute.techshop.Controller.Product;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hcmute.techshop.Entity.Auth.UserEntity;
+import hcmute.techshop.Enum.EventType;
 import hcmute.techshop.Model.Product.AttributeDTO;
 import hcmute.techshop.Model.Product.CreateProductRequest;
 import hcmute.techshop.Model.Product.VariantDTO;
 import hcmute.techshop.Model.ResponseModel;
 import hcmute.techshop.Model.Product.ProductModel;
 import hcmute.techshop.Service.Product.IProductService;
+import hcmute.techshop.Service.Tracking.TrackingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -25,10 +31,25 @@ public class ProductController {
     public static class UserProductController {
         @Autowired
         private IProductService productService;
+        @Autowired
+        private TrackingService trackingService;
+
+        private UserEntity ChecAuthenticationForCurrentUser() {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return null;
+            }
+            return (UserEntity) authentication.getPrincipal();
+        }
 
         @GetMapping("/{id}")
         public ResponseEntity<ResponseModel> getProductById(@PathVariable Integer id) {
             ProductModel product = productService.getProductById(id);
+            UserEntity user = ChecAuthenticationForCurrentUser();
+            if(user != null) {
+                trackingService.track(user, EventType.VIEW_PRODUCT, "Product id: " + id.toString());
+            }
             return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseModel(true, "Lấy sản phẩm thành công", product)
             );

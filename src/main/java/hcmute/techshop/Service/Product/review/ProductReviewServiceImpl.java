@@ -4,6 +4,7 @@ import hcmute.techshop.Entity.Auth.UserEntity;
 import hcmute.techshop.Entity.Order.OrderItemEntity;
 import hcmute.techshop.Entity.Product.ProductEntity;
 import hcmute.techshop.Entity.Product.ProductReviewEntity;
+import hcmute.techshop.Enum.EventType;
 import hcmute.techshop.Enum.Role;
 import hcmute.techshop.Model.Product.AddReviewRequest;
 import hcmute.techshop.Model.Product.ProductReviewModel;
@@ -12,6 +13,7 @@ import hcmute.techshop.Repository.Auth.UserRepository;
 import hcmute.techshop.Repository.Order.OrderItemRepository;
 import hcmute.techshop.Repository.Product.ProductRepository;
 import hcmute.techshop.Repository.Product.ProductReviewRepository;
+import hcmute.techshop.Service.Tracking.ITrackingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +29,7 @@ public class ProductReviewServiceImpl implements IProductReviewService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final OrderItemRepository orderItemRepository;
-
+    private final ITrackingService trackingService;
     @Override
     public ProductReviewModel addReview(AddReviewRequest request, String email) {
         // Lấy thông tin người dùng
@@ -74,6 +76,7 @@ public class ProductReviewServiceImpl implements IProductReviewService {
         // Chuyển đổi sang model và trả về
         ProductReviewModel model = mapToModel(review);
         model.setOwner(true);
+        trackingService.track(user, EventType.WRITE_REVIEW, "ProductId: " + product.getId().toString());
         return model;
     }
 

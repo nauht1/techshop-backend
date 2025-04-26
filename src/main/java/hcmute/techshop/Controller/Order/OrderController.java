@@ -83,8 +83,8 @@ class AdminOrderController {
     }
 
     @DeleteMapping("/{orderId}")
-    public ResponseEntity<Map<String, Object>> cancelOrder(@PathVariable Integer orderId) {
-        orderService.cancelOrder(orderId);
+    public ResponseEntity<Map<String, Object>> cancelOrder(@PathVariable Integer orderId, Authentication auth) {
+        orderService.cancelOrder(orderId, auth);
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
         response.put("message", "Order cancelled successfully");

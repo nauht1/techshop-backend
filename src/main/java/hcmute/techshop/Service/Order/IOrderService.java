@@ -12,7 +12,7 @@ public interface IOrderService {
 
     OrderModel updateOrderStatus(Integer orderId, String status);
 
-    void cancelOrder(Integer orderId);
+    void cancelOrder(Integer orderId, Authentication auth);
 
     PageResponse<OrderModel> getAllOrders(OrderStatus orderStatus, int page, int size, Authentication auth);
 }

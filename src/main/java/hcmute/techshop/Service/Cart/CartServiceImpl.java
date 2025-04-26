@@ -4,11 +4,13 @@ import hcmute.techshop.Entity.Auth.UserEntity;
 import hcmute.techshop.Entity.Cart.CartEntity;
 import hcmute.techshop.Entity.Cart.CartItemEntity;
 import hcmute.techshop.Entity.Product.ProductEntity;
+import hcmute.techshop.Enum.EventType;
 import hcmute.techshop.Exception.ResourceNotFoundException;
 import hcmute.techshop.Model.Cart.*;
 import hcmute.techshop.Repository.Cart.CartItemRepository;
 import hcmute.techshop.Repository.Cart.CartRepository;
 import hcmute.techshop.Repository.Product.ProductRepository;
+import hcmute.techshop.Service.Tracking.ITrackingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +25,7 @@ public class CartServiceImpl implements ICartService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final ProductRepository productRepository;
+    private final ITrackingService trackingService;
 
     @Override
     @Transactional
@@ -51,6 +54,7 @@ public class CartServiceImpl implements ICartService {
 
         cartItem.setQuantity(cartItem.getQuantity() + request.getQuantity());
         cartItemRepository.save(cartItem);
+        trackingService.track(user, EventType.ADD_TO_CART, "add to cart with id: " + cart.getId().toString());
         return buildCartResponse(cart);
     }
 

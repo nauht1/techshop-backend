@@ -6,6 +6,7 @@ import hcmute.techshop.Entity.Order.OrderItemEntity;
 import hcmute.techshop.Entity.Payment.PaymentEntity;
 import hcmute.techshop.Entity.Product.DiscountEntity;
 import hcmute.techshop.Entity.Product.ProductEntity;
+import hcmute.techshop.Entity.Product.ProductImageEntity;
 import hcmute.techshop.Entity.Shipping.ShippingMethodEntity;
 import hcmute.techshop.Enum.OrderStatus;
 import hcmute.techshop.Enum.PaymentStatus;
@@ -17,6 +18,7 @@ import hcmute.techshop.Model.PageResponse;
 import hcmute.techshop.Repository.Order.DiscountRepository;
 import hcmute.techshop.Repository.Order.OrderRepository;
 import hcmute.techshop.Repository.Payment.PaymentRepository;
+import hcmute.techshop.Repository.Product.ProductImageRepository;
 import hcmute.techshop.Repository.Product.ProductRepository;
 import hcmute.techshop.Repository.Shipping.ShippingRepository;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +45,7 @@ public class OrderServiceImpl implements IOrderService {
     private final DiscountRepository discountRepository;
     private final ProductRepository productRepository;
     private final PaymentRepository paymentRepository;
+    private final ProductImageRepository productImageRepository;
 
     @Override
     public PageResponse<OrderModel> getOrders(OrderStatus orderStatus, int page, int size, Authentication auth) {
@@ -67,6 +70,9 @@ public class OrderServiceImpl implements IOrderService {
                             .map(item -> {
                                 ProductEntity product = item.getProduct();
 
+                                ProductImageEntity productImage = productImageRepository.findFirstByProductId(product.getId())
+                                        .orElse(null);
+
                                 OrderItemModel itemModel = new OrderItemModel();
                                 itemModel.setId(item.getId());
                                 itemModel.setProductId(product.getId());
@@ -76,6 +82,12 @@ public class OrderServiceImpl implements IOrderService {
                                 itemModel.setQuantity(item.getQuantity());
                                 itemModel.setUnitPrice(item.getUnitPrice());
                                 itemModel.setReviewed(item.isReviewed());
+
+                                if (productImage != null) {
+                                    itemModel.setProductImage(productImage.getImageUrl());
+                                } else {
+                                    itemModel.setProductImage(null);
+                                }
 
                                 return itemModel;
                             }).toList();
@@ -127,13 +139,15 @@ public class OrderServiceImpl implements IOrderService {
             ProductEntity product = productRepository.findById(itemRequest.getProductId())
                     .orElseThrow(() -> new RuntimeException("Product not found"));
 
+            double unitPrice = (product.getSalePrice() != null) ? product.getSalePrice() : product.getPrice();
+
             OrderItemEntity item = new OrderItemEntity();
             item.setOrder(order);
             item.setProduct(product);
             item.setQuantity(itemRequest.getQuantity());
-            item.setUnitPrice(itemRequest.getUnitPrice());
+            item.setUnitPrice(unitPrice);
 
-            totalPrice += itemRequest.getUnitPrice() * itemRequest.getQuantity();
+            totalPrice += unitPrice * itemRequest.getQuantity();
             orderItems.add(item);
         }
 
@@ -193,6 +207,9 @@ public class OrderServiceImpl implements IOrderService {
                             .map(item -> {
                                 ProductEntity product = item.getProduct();
 
+                                ProductImageEntity productImage = productImageRepository.findFirstByProductId(product.getId())
+                                        .orElse(null);
+
                                 OrderItemModel itemModel = new OrderItemModel();
                                 itemModel.setId(item.getId());
                                 itemModel.setProductId(product.getId());
@@ -202,7 +219,11 @@ public class OrderServiceImpl implements IOrderService {
                                 itemModel.setQuantity(item.getQuantity());
                                 itemModel.setUnitPrice(item.getUnitPrice());
                                 itemModel.setReviewed(item.isReviewed());
-
+                                if (productImage != null) {
+                                    itemModel.setProductImage(productImage.getImageUrl());
+                                } else {
+                                    itemModel.setProductImage(null);
+                                }
                                 return itemModel;
                             }).toList();
 

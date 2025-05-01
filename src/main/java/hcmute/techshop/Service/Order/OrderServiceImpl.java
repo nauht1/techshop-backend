@@ -6,10 +6,12 @@ import hcmute.techshop.Entity.Order.OrderItemEntity;
 import hcmute.techshop.Entity.Payment.PaymentEntity;
 import hcmute.techshop.Entity.Product.DiscountEntity;
 import hcmute.techshop.Entity.Product.ProductEntity;
+import hcmute.techshop.Entity.Product.ProductImageEntity;
 import hcmute.techshop.Entity.Shipping.ShippingMethodEntity;
 import hcmute.techshop.Enum.EventType;
 import hcmute.techshop.Enum.OrderStatus;
 import hcmute.techshop.Enum.PaymentStatus;
+import hcmute.techshop.Model.Order.DashboardOrderResponse;
 import hcmute.techshop.Model.Order.OrderItemModel;
 import hcmute.techshop.Model.Order.OrderModel;
 import hcmute.techshop.Model.Order.PlaceOrderRequest;
@@ -17,6 +19,7 @@ import hcmute.techshop.Model.PageResponse;
 import hcmute.techshop.Repository.Order.DiscountRepository;
 import hcmute.techshop.Repository.Order.OrderRepository;
 import hcmute.techshop.Repository.Payment.PaymentRepository;
+import hcmute.techshop.Repository.Product.ProductImageRepository;
 import hcmute.techshop.Repository.Product.ProductRepository;
 import hcmute.techshop.Repository.Shipping.ShippingRepository;
 import hcmute.techshop.Service.Tracking.ITrackingService;
@@ -44,7 +47,11 @@ public class OrderServiceImpl implements IOrderService {
     private final DiscountRepository discountRepository;
     private final ProductRepository productRepository;
     private final PaymentRepository paymentRepository;
+<<<<<<< HEAD
     private final ITrackingService trackingService;
+=======
+    private final ProductImageRepository productImageRepository;
+>>>>>>> 4b3946d7bb7365990688d0d33020fc433b76bbb7
 
     @Override
     public PageResponse<OrderModel> getOrders(OrderStatus orderStatus, int page, int size, Authentication auth) {
@@ -69,6 +76,9 @@ public class OrderServiceImpl implements IOrderService {
                             .map(item -> {
                                 ProductEntity product = item.getProduct();
 
+                                ProductImageEntity productImage = productImageRepository.findFirstByProductId(product.getId())
+                                        .orElse(null);
+
                                 OrderItemModel itemModel = new OrderItemModel();
                                 itemModel.setId(item.getId());
                                 itemModel.setProductId(product.getId());
@@ -78,6 +88,12 @@ public class OrderServiceImpl implements IOrderService {
                                 itemModel.setQuantity(item.getQuantity());
                                 itemModel.setUnitPrice(item.getUnitPrice());
                                 itemModel.setReviewed(item.isReviewed());
+
+                                if (productImage != null) {
+                                    itemModel.setProductImage(productImage.getImageUrl());
+                                } else {
+                                    itemModel.setProductImage(null);
+                                }
 
                                 return itemModel;
                             }).toList();
@@ -129,13 +145,15 @@ public class OrderServiceImpl implements IOrderService {
             ProductEntity product = productRepository.findById(itemRequest.getProductId())
                     .orElseThrow(() -> new RuntimeException("Product not found"));
 
+            double unitPrice = (product.getSalePrice() != null) ? product.getSalePrice() : product.getPrice();
+
             OrderItemEntity item = new OrderItemEntity();
             item.setOrder(order);
             item.setProduct(product);
             item.setQuantity(itemRequest.getQuantity());
-            item.setUnitPrice(itemRequest.getUnitPrice());
+            item.setUnitPrice(unitPrice);
 
-            totalPrice += itemRequest.getUnitPrice() * itemRequest.getQuantity();
+            totalPrice += unitPrice * itemRequest.getQuantity();
             orderItems.add(item);
         }
 
@@ -162,6 +180,7 @@ public class OrderServiceImpl implements IOrderService {
         Optional<OrderEntity> order = orderRepository.findById(orderId);
         order.orElseThrow(() -> new RuntimeException("Order not found"));
         order.get().setStatus(OrderStatus.valueOf(status));
+        order.get().setUpdateTime(LocalDateTime.now());
         OrderEntity savedOrder = orderRepository.save(order.get());
         return modelMapper.map(savedOrder,OrderModel.class);
     }
@@ -197,6 +216,9 @@ public class OrderServiceImpl implements IOrderService {
                             .map(item -> {
                                 ProductEntity product = item.getProduct();
 
+                                ProductImageEntity productImage = productImageRepository.findFirstByProductId(product.getId())
+                                        .orElse(null);
+
                                 OrderItemModel itemModel = new OrderItemModel();
                                 itemModel.setId(item.getId());
                                 itemModel.setProductId(product.getId());
@@ -206,7 +228,11 @@ public class OrderServiceImpl implements IOrderService {
                                 itemModel.setQuantity(item.getQuantity());
                                 itemModel.setUnitPrice(item.getUnitPrice());
                                 itemModel.setReviewed(item.isReviewed());
-
+                                if (productImage != null) {
+                                    itemModel.setProductImage(productImage.getImageUrl());
+                                } else {
+                                    itemModel.setProductImage(null);
+                                }
                                 return itemModel;
                             }).toList();
 
@@ -219,5 +245,34 @@ public class OrderServiceImpl implements IOrderService {
                 orderPage.getNumber(),
                 orderPage.getTotalPages()
         );
+    }
+
+    @Override
+    public DashboardOrderResponse getTodayOrders(){
+//        if (auth == null) throw new RuntimeException("Unauthorized");
+
+
+//        Page<OrderEntity> orderPage = orderRepository;
+        LocalDateTime date = LocalDateTime.now();
+        LocalDateTime startOfDay = date.toLocalDate().atStartOfDay();
+        LocalDateTime endOfDay = date.plusDays(1).toLocalDate().atStartOfDay();
+
+        List<OrderEntity> orderPage = orderRepository.findAllByUpdateTimeBetween(startOfDay, endOfDay);
+        DashboardOrderResponse resp = new DashboardOrderResponse();
+        resp.setTotal(orderPage.size());
+        resp.setTotalConfirm(orderPage.stream().filter(obj->obj.getStatus().equals(OrderStatus.CONFIRMED)).toList().size());
+        resp.setTotalCanceled(orderPage.stream().filter(obj->obj.getStatus().equals(OrderStatus.CANCELED)).toList().size());
+        resp.setTotalPending(orderPage.stream().filter(obj->obj.getStatus().equals(OrderStatus.PENDING)).toList().size());
+        resp.setTotalDelivered(orderPage.stream().filter(obj->obj.getStatus().equals(OrderStatus.DELIVERED)).toList().size());
+        resp.setTotalDelivering(orderPage.stream().filter(obj->obj.getStatus().equals(OrderStatus.DELIVERING)).toList().size());
+        resp.setTotalProcess(orderPage.stream().filter(obj->obj.getStatus().equals(OrderStatus.PROCESSING)).toList().size());
+
+        return resp;
+//        return orderModels;
+//        return new PageResponse<>(
+//                orderModels,
+//                orderPage.getNumber(),
+//                orderPage.getTotalPages()
+//        );
     }
 }

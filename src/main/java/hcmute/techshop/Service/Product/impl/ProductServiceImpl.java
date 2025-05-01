@@ -226,6 +226,25 @@ public class ProductServiceImpl implements IProductService {
         productRepository.save(product);
     }
 
+    @Override
+    public void deleteProductImage(Integer id) {
+        ProductImageEntity productImageEntity = productImageRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Image not found"));
+
+        productImageRepository.delete(productImageEntity);
+    }
+
+    @Override
+    public String updateProductImage(Integer id, MultipartFile image) throws IOException {
+        ProductImageEntity productImageEntity = productImageRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Image not found"));
+
+        String url = uploadFileService.uploadImageMultipart(image);
+        productImageEntity.setImageUrl(url);
+        productImageRepository.save(productImageEntity);
+        return url;
+    }
+
     private ProductModel convertToProductModel(ProductEntity product) {
         // Map basic info
         ProductModel model = modelMapper.map(product, ProductModel.class);

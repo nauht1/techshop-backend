@@ -46,6 +46,7 @@ public class OrderEntity {
     private List<OrderItemEntity> orderItems = new ArrayList<>();
 
     private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime updateTime = LocalDateTime.now();
     private boolean isActive = true;
     private Double shippingFee;
 

@@ -11,13 +11,6 @@ import org.springframework.lang.Nullable;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductAttributeUpadteRequestModel {
-    private Integer id;
-
-    @Nullable
     private String attName;
-
-    @Nullable
     private String attValue;
-
-    private Integer productId;
 }

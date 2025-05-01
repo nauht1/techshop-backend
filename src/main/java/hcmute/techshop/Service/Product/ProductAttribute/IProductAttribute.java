@@ -12,6 +12,6 @@ public interface IProductAttribute {
     ProductAttributeResponseProjection getById(Integer id);
     List<ProductAttributeResponseProjection> getByProductId(Integer id);
     ProductAttributeResponseModel save(ProductAttributeAddNewRequestModel model);
-    ProductAttributeResponseModel update(ProductAttributeUpadteRequestModel model);
+    ProductAttributeResponseModel update(Integer id, ProductAttributeUpadteRequestModel model);
     ProductAttributeResponseModel delete(Integer id);
 }

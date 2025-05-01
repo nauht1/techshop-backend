@@ -63,12 +63,8 @@ public class ProductAttributeServiceImpl implements IProductAttribute {
 
 
     @Override
-    public ProductAttributeResponseModel update(ProductAttributeUpadteRequestModel model) {
-        if (model.getId()>0) {
-            throw new IllegalArgumentException("Product attribute not found");
-        }
-
-        ProductAttributeEntity updateEntity = repository.findById(model.getId())
+    public ProductAttributeResponseModel update(Integer id, ProductAttributeUpadteRequestModel model) {
+        ProductAttributeEntity updateEntity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product attribute not found"));
 
         if (model.getAttName() != null && !model.getAttName().isBlank()) {
@@ -76,11 +72,6 @@ public class ProductAttributeServiceImpl implements IProductAttribute {
         }
         if (model.getAttValue() != null && !model.getAttValue().isBlank()) {
             updateEntity.setAttValue(model.getAttValue());
-        }
-        if (model.getProductId() >0) {
-            ProductEntity product = productRepository.findById(model.getProductId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
-            updateEntity.setProduct(product);
         }
 
         return productAttributeMapper.map(repository.save(updateEntity),ProductAttributeResponseModel.class);

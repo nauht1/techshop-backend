@@ -115,9 +115,7 @@ public class AdminProductAttributeController {
     @PutMapping("/update/{id}")
     public ResponseEntity<ResponseModel> updateProductAttribute(@PathVariable Integer id, @RequestBody ProductAttributeUpadteRequestModel model) {
         try {
-            // Đảm bảo set id từ path variable vào model
-            model.setId(id);
-            ProductAttributeResponseModel updated = productAttributeService.update(model);
+            ProductAttributeResponseModel updated = productAttributeService.update(id, model);
             return ResponseEntity.ok(
                     ResponseModel.builder()
                             .success(true)

@@ -12,6 +12,7 @@ import hcmute.techshop.Model.Product.ProductModel;
 import hcmute.techshop.Service.Product.IProductService;
 import hcmute.techshop.Service.Tracking.TrackingService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.relational.core.sql.In;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -154,6 +156,35 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseModel(true, "Đã phục hồi sản phẩm thành công", "Product ID " + id + " đã được phục hồi")
             );
+        }
+
+        @DeleteMapping("/image/{id}")
+        public ResponseEntity<ResponseModel> deleteProductImage(@PathVariable Integer id) {
+            try {
+                productService.deleteProductImage(id);
+                return ResponseEntity
+                        .status(HttpStatus.OK)
+                        .body(new ResponseModel(true, "Đã xóa ảnh thành công", null));
+            } catch (Exception e) {
+                return ResponseEntity
+                        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(new ResponseModel(true, "Something error", null));
+            }
+        }
+
+        @PutMapping("/image/{id}")
+        public ResponseEntity<ResponseModel> updateProductImage(@PathVariable Integer id,
+                                                                MultipartFile image) {
+            try {
+                String newImageUrl = productService.updateProductImage(id, image);
+                return ResponseEntity
+                        .status(HttpStatus.OK)
+                        .body(new ResponseModel(true, "Đã cập nhật ảnh thành công", newImageUrl));
+            } catch (Exception e) {
+                return ResponseEntity
+                        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(new ResponseModel(true, "Something error", null));
+            }
         }
     }
 }

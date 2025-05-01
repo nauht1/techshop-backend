@@ -5,6 +5,7 @@ import java.util.List;
 
 import hcmute.techshop.Model.Product.CreateProductRequest;
 import hcmute.techshop.Model.Product.ProductModel;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface IProductService {
     ProductModel createProduct(CreateProductRequest request) throws IOException;
@@ -16,4 +17,6 @@ public interface IProductService {
     void deleteProduct(Integer id);
     void softDeleteProduct(Integer id);
     void restoreProduct(Integer id);
+    void deleteProductImage(Integer id);
+    String updateProductImage(Integer id, MultipartFile image) throws IOException;
 }

@@ -1,5 +1,6 @@
 package hcmute.techshop.Controller.Order;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ import hcmute.techshop.Model.Order.OrderModel;
 import hcmute.techshop.Model.Order.PlaceOrderRequest;
 import hcmute.techshop.Model.PageResponse;
 import hcmute.techshop.Model.ResponseModel;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -23,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import hcmute.techshop.Entity.Order.OrderEntity;
 import hcmute.techshop.Service.Order.IOrderService;
 import lombok.RequiredArgsConstructor;
 
@@ -69,6 +70,15 @@ public class OrderController {
     public ResponseEntity<ResponseModel> getOrdersByDay(
     ) {
         DashboardOrderResponse orders = orderService.getTodayOrders();
+        return ResponseEntity.ok(new ResponseModel(true, "Lấy đơn hàng thành công", orders));
+    }
+
+    @GetMapping("/time")
+    public ResponseEntity<ResponseModel> getOrdersByTime(
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+    ) {
+        List<DashboardOrderResponse> orders = orderService.getOrderStatisticsBetweenDates(startDate, endDate);
         return ResponseEntity.ok(new ResponseModel(true, "Lấy đơn hàng thành công", orders));
     }
 }

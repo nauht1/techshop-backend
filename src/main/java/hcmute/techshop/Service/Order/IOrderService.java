@@ -7,6 +7,7 @@ import hcmute.techshop.Model.Order.PlaceOrderRequest;
 import hcmute.techshop.Model.PageResponse;
 import org.springframework.security.core.Authentication;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface IOrderService {
@@ -20,4 +21,5 @@ public interface IOrderService {
     PageResponse<OrderModel> getAllOrders(OrderStatus orderStatus, int page, int size, Authentication auth);
 
     DashboardOrderResponse getTodayOrders();
+    List<DashboardOrderResponse> getOrderStatisticsBetweenDates(LocalDate startDate, LocalDate endDate);
 }

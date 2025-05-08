@@ -31,7 +31,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -265,5 +267,36 @@ public class OrderServiceImpl implements IOrderService {
 //                orderPage.getNumber(),
 //                orderPage.getTotalPages()
 //        );
+    }
+
+    @Override
+    public List<DashboardOrderResponse> getOrderStatisticsBetweenDates(LocalDate startDate, LocalDate endDate) {
+        long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
+        if (daysBetween > 90) {
+            throw new IllegalArgumentException("Chỉ cho phép thống kê tối đa trong 90 ngày.");
+        }
+
+        List<DashboardOrderResponse> responseList = new ArrayList<>();
+
+        for (int i = 0; i <= daysBetween; i++) {
+            LocalDate currentDate = startDate.plusDays(i);
+            LocalDateTime startOfDay = currentDate.atStartOfDay();
+            LocalDateTime endOfDay = currentDate.plusDays(1).atStartOfDay();
+
+            List<OrderEntity> orders = orderRepository.findAllByUpdateTimeBetween(startOfDay, endOfDay);
+
+            DashboardOrderResponse resp = new DashboardOrderResponse();
+            resp.setTotal(orders.size());
+            resp.setTotalConfirm((int) orders.stream().filter(o -> o.getStatus().equals(OrderStatus.CONFIRMED)).count());
+            resp.setTotalPending((int) orders.stream().filter(o -> o.getStatus().equals(OrderStatus.PENDING)).count());
+            resp.setTotalProcess((int) orders.stream().filter(o -> o.getStatus().equals(OrderStatus.PROCESSING)).count());
+            resp.setTotalDelivering((int) orders.stream().filter(o -> o.getStatus().equals(OrderStatus.DELIVERING)).count());
+            resp.setTotalDelivered((int) orders.stream().filter(o -> o.getStatus().equals(OrderStatus.DELIVERED)).count());
+            resp.setTotalCanceled((int) orders.stream().filter(o -> o.getStatus().equals(OrderStatus.CANCELED)).count());
+
+            responseList.add(resp);
+        }
+
+        return responseList;
     }
 }

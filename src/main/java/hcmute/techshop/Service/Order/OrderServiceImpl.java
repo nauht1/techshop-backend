@@ -8,6 +8,7 @@ import hcmute.techshop.Entity.Product.DiscountEntity;
 import hcmute.techshop.Entity.Product.ProductEntity;
 import hcmute.techshop.Entity.Product.ProductImageEntity;
 import hcmute.techshop.Entity.Shipping.ShippingMethodEntity;
+import hcmute.techshop.Enum.EventType;
 import hcmute.techshop.Enum.OrderStatus;
 import hcmute.techshop.Enum.PaymentStatus;
 import hcmute.techshop.Model.Order.DashboardOrderResponse;
@@ -21,6 +22,7 @@ import hcmute.techshop.Repository.Payment.PaymentRepository;
 import hcmute.techshop.Repository.Product.ProductImageRepository;
 import hcmute.techshop.Repository.Product.ProductRepository;
 import hcmute.techshop.Repository.Shipping.ShippingRepository;
+import hcmute.techshop.Service.Tracking.ITrackingService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -47,7 +49,11 @@ public class OrderServiceImpl implements IOrderService {
     private final DiscountRepository discountRepository;
     private final ProductRepository productRepository;
     private final PaymentRepository paymentRepository;
+<<<<<<< HEAD
+    private final ITrackingService trackingService;
+=======
     private final ProductImageRepository productImageRepository;
+>>>>>>> 4b3946d7bb7365990688d0d33020fc433b76bbb7
 
     @Override
     public PageResponse<OrderModel> getOrders(OrderStatus orderStatus, int page, int size, Authentication auth) {
@@ -168,7 +174,6 @@ public class OrderServiceImpl implements IOrderService {
         payment.setCreatedAt(LocalDateTime.now());
 
         paymentRepository.save(payment);
-
         return modelMapper.map(savedOrder, OrderModel.class);
     }
 
@@ -183,7 +188,11 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     @Override
-    public void cancelOrder(Integer orderId) {
+    public void cancelOrder(Integer orderId, Authentication auth) {
+        if (auth == null) return;
+
+        UserEntity user = (UserEntity) auth.getPrincipal();
+        trackingService.track(user, EventType.CANCEL_ORDER, "cancel_order with id" + orderId.toString());
         orderRepository.deleteById(orderId);
     }
     @Override

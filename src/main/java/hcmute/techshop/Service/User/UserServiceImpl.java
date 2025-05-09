@@ -2,12 +2,14 @@ package hcmute.techshop.Service.User;
 
 import hcmute.techshop.Entity.Auth.UserEntity;
 import hcmute.techshop.Entity.Auth.UserTracking;
+import hcmute.techshop.Enum.EventType;
 import hcmute.techshop.Mapper.UserMapper;
 import hcmute.techshop.Model.Auth.UserModel;
 import hcmute.techshop.Model.User.ProfileRequest;
 import hcmute.techshop.Model.User.ProfileResponse;
 import hcmute.techshop.Repository.Auth.UserRepository;
 import hcmute.techshop.Repository.Auth.UserTrackingRepository;
+import hcmute.techshop.Service.Tracking.TrackingService;
 import hcmute.techshop.Service.UploadFile.UploadFileServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -30,6 +32,7 @@ public class UserServiceImpl implements IUserService{
     private final UserTrackingRepository userTrackingRepository;
     private final ModelMapper modelMapper;
     private final UploadFileServiceImpl uploadFileService;
+    private final TrackingService trackingService;
     @Override
     @Transactional
     public ProfileResponse updateUserProfileService(Integer id, ProfileRequest request) {
@@ -40,6 +43,7 @@ public class UserServiceImpl implements IUserService{
             UserEntity user = userRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("User not found"));
             userMapper.updateUserFromUser(user, request);
+            trackingService.track(user, EventType.UPDATE_PROFILE, "Update User Profile");
             userRepository.save(user);
             return ProfileResponse.builder().message("Update profile successful").user(mapperUserToUserModel(user)).build();
         }catch (RuntimeException exception) {
@@ -85,14 +89,11 @@ public class UserServiceImpl implements IUserService{
             }
             System.out.println("checked is successflly");
             String contentType = avatar.getContentType();
-
-            System.out.println("check content" + contentType);
             if (!contentType.startsWith("image/")) {
                 throw new IllegalArgumentException("File must be an image.");
             }
-
             String avatarUrl = uploadFileService.uploadImageMultipart(avatar);
-            System.out.println("avatar url " + avatarUrl);
+            trackingService.track(user, EventType.UPDATE_PROFILE, avatarUrl);
             user.setAvatar(avatarUrl);
             userRepository.save(user);
         } catch (RuntimeException exception) {

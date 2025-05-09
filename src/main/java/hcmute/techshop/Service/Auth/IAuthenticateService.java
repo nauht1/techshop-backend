@@ -16,4 +16,5 @@ public interface IAuthenticateService {
     VerifyResponse VerifiedCode(String email, String code);
     ForgotPasswordResponse forgotPassword(String email);
     ResetPasswrodResponse resetPasswordResponse(String email, String token);
+    void checkTokenResetPassword(String token);
 }

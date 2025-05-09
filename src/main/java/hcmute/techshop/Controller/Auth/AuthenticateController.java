@@ -2,11 +2,14 @@ package hcmute.techshop.Controller.Auth;
 
 import hcmute.techshop.Entity.Auth.UserEntity;
 import hcmute.techshop.Model.Auth.*;
+import hcmute.techshop.Model.ResponseModel;
 import hcmute.techshop.Service.Auth.AuthenticateServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -42,5 +45,20 @@ public class AuthenticateController {
     @PutMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
         return ResponseEntity.ok(authenticateService.resetPasswordResponse(request.getPassword(), request.getToken()));
+    }
+    @GetMapping("/check-token-reset-password")
+    public ResponseEntity<?> checkTokenResetPassword(@RequestBody ResetPasswordRequest request) {
+        try {
+            authenticateService.checkTokenResetPassword(request.getToken());
+            return ResponseEntity.ok(ResponseModel.builder()
+                    .success(true)
+                    .message("Checked your token is valid")
+                    .build());
+        } catch (Exception e) {
+            return ResponseEntity.ok(ResponseModel.builder()
+                    .success(false)
+                    .message(e.getMessage())
+                    .build());
+        }
     }
 }

@@ -9,6 +9,7 @@ import hcmute.techshop.Entity.Product.ProductEntity;
 import hcmute.techshop.Entity.Product.ProductImageEntity;
 import hcmute.techshop.Entity.Shipping.ShippingMethodEntity;
 import hcmute.techshop.Enum.EventType;
+import hcmute.techshop.Enum.NotificationType;
 import hcmute.techshop.Enum.OrderStatus;
 import hcmute.techshop.Enum.PaymentStatus;
 import hcmute.techshop.Model.Order.DashboardOrderResponse;
@@ -22,6 +23,7 @@ import hcmute.techshop.Repository.Payment.PaymentRepository;
 import hcmute.techshop.Repository.Product.ProductImageRepository;
 import hcmute.techshop.Repository.Product.ProductRepository;
 import hcmute.techshop.Repository.Shipping.ShippingRepository;
+import hcmute.techshop.Service.Notification.INotificationService;
 import hcmute.techshop.Service.Tracking.ITrackingService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -49,11 +51,9 @@ public class OrderServiceImpl implements IOrderService {
     private final DiscountRepository discountRepository;
     private final ProductRepository productRepository;
     private final PaymentRepository paymentRepository;
-<<<<<<< HEAD
     private final ITrackingService trackingService;
-=======
     private final ProductImageRepository productImageRepository;
->>>>>>> 4b3946d7bb7365990688d0d33020fc433b76bbb7
+    private final INotificationService notificationService;
 
     @Override
     public PageResponse<OrderModel> getOrders(OrderStatus orderStatus, int page, int size, Authentication auth) {
@@ -165,6 +165,11 @@ public class OrderServiceImpl implements IOrderService {
         // Save Order
         OrderEntity savedOrder = orderRepository.save(order);
 
+        // Send notify
+        notificationService.sendNotification(user, "Cập nhật đơn hàng",
+                "Đơn hàng #" + savedOrder.getId() +" đã được đặt thành công.",
+                NotificationType.ORDER_UPDATE);
+
         // Save Payment
         PaymentEntity payment = new PaymentEntity();
         payment.setOrder(savedOrder);
@@ -184,7 +189,35 @@ public class OrderServiceImpl implements IOrderService {
         order.get().setStatus(OrderStatus.valueOf(status));
         order.get().setUpdateTime(LocalDateTime.now());
         OrderEntity savedOrder = orderRepository.save(order.get());
+
+        // Send notify
+        String message = generateMessage(status, savedOrder);
+        notificationService.sendNotification(savedOrder.getUser(),
+                "Cập nhật đơn hàng",
+                message,
+                NotificationType.ORDER_UPDATE);
+
         return modelMapper.map(savedOrder,OrderModel.class);
+    }
+
+    private static String generateMessage(String status, OrderEntity savedOrder) {
+        String message = "Đơn hàng #" + savedOrder.getId();
+        switch (status) {
+            case "CONFIRMED":
+                message += " của bạn đã được xác nhận";
+                break;
+            case "DELIVERING":
+                message += " đang được giao đến bạn, vui lòng chú ý";
+                break;
+            case "DELIVERED":
+                message += " đã giao thành công";
+                break;
+            case "CANCELED":
+                message += " đã bị hủy";
+                break;
+            default: throw new RuntimeException("Something went wrong");
+        }
+        return message;
     }
 
     @Override

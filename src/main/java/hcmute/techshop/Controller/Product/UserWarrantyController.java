@@ -1,5 +1,6 @@
 package hcmute.techshop.Controller.Product;
 
+import hcmute.techshop.Entity.Auth.UserEntity;
 import hcmute.techshop.Exception.BadRequestException;
 import hcmute.techshop.Model.Product.WarrantyModel;
 import hcmute.techshop.Model.ResponseModel;
@@ -31,8 +32,10 @@ public class UserWarrantyController {
         if (authentication.getName() == null || authentication.getName().trim().isEmpty()) {
             throw new BadRequestException("Thông tin người dùng không hợp lệ");
         }
-        
-        String currentUserEmail = authentication.getName();
+
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+        String currentUserEmail = user.getEmail();
+
         // Lấy danh sách bảo hành của người dùng hiện tại theo email và chỉ xem được bảo hành isActive = true
         List<WarrantyModel> warranties = warrantyService.getWarrantiesByUserEmail(currentUserEmail);
         return ResponseEntity.ok(new ResponseModel(true, "Lấy danh sách bảo hành thành công", warranties));
@@ -54,8 +57,9 @@ public class UserWarrantyController {
         if (id == null) {
             throw new BadRequestException("ID bảo hành không được để trống");
         }
-        
-        String currentUserEmail = authentication.getName();
+
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+        String currentUserEmail = user.getEmail();
         
         WarrantyModel warranty = warrantyService.getWarrantyById(id, false);
         

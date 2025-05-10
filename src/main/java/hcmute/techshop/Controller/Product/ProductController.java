@@ -4,11 +4,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hcmute.techshop.Entity.Auth.UserEntity;
 import hcmute.techshop.Enum.EventType;
-import hcmute.techshop.Model.Product.AttributeDTO;
-import hcmute.techshop.Model.Product.CreateProductRequest;
-import hcmute.techshop.Model.Product.VariantDTO;
+import hcmute.techshop.Model.PageResponse;
+import hcmute.techshop.Model.Product.*;
 import hcmute.techshop.Model.ResponseModel;
-import hcmute.techshop.Model.Product.ProductModel;
 import hcmute.techshop.Service.Product.IProductService;
 import hcmute.techshop.Service.Tracking.TrackingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +58,16 @@ public class ProductController {
         @GetMapping
         public ResponseEntity<ResponseModel> getAllProducts() {
             List<ProductModel> products = productService.getAllActiveProducts();
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseModel(true, "Lấy danh sách sản phẩm thành công", products)
+            );
+        }
+
+        @GetMapping("/search")
+        public ResponseEntity<ResponseModel> searchProduct(@RequestBody SearchProductReq request,
+                                                           @RequestParam(defaultValue = "0") int page,
+                                                           @RequestParam(defaultValue = "10") int size) {
+            PageResponse<ProductModel> products = productService.searchProducts(request.getKeyword(), page, size);
             return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseModel(true, "Lấy danh sách sản phẩm thành công", products)
             );

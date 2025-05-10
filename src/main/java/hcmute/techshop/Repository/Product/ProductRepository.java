@@ -2,6 +2,7 @@ package hcmute.techshop.Repository.Product;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -27,4 +28,6 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Integer>
             "GROUP BY p.id " + // nhóm lại theo sản phẩm
             "ORDER BY COUNT(oi.id) DESC") // sắp xếp theo lượt bán giảm dần
     List<ProductEntity> findTopSellingProducts(@Param("SUCCESS_STATUS") PaymentStatus successStatus, Pageable pageable);
+
+    Page<ProductEntity> searchProductsByNameContainingIgnoreCase(@Param("name") String name, Pageable pageable);
 }

@@ -7,14 +7,17 @@ import java.util.stream.Collectors;
 
 import hcmute.techshop.Entity.Product.*;
 import hcmute.techshop.Enum.PaymentStatus;
+import hcmute.techshop.Model.PageResponse;
 import hcmute.techshop.Model.Product.*;
 import hcmute.techshop.Repository.Product.*;
 import hcmute.techshop.Service.UploadFile.IUploadFileService;
 import hcmute.techshop.Service.UploadFile.UploadFileServiceImpl;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import hcmute.techshop.Service.Product.IProductService;
@@ -243,6 +246,22 @@ public class ProductServiceImpl implements IProductService {
         productImageEntity.setImageUrl(url);
         productImageRepository.save(productImageEntity);
         return url;
+    }
+
+    @Override
+    public PageResponse<ProductModel> searchProducts(String keyword, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ProductEntity> productPage = productRepository.searchProductsByNameContainingIgnoreCase(keyword.trim(), pageable);
+
+        List<ProductModel> productModels = productPage.getContent().stream()
+                .map(this::convertToProductModel)
+                .toList();
+
+        return new PageResponse<>(
+                productModels,
+                productPage.getNumber(),
+                productPage.getTotalPages()
+        );
     }
 
     private ProductModel convertToProductModel(ProductEntity product) {

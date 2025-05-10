@@ -15,5 +15,5 @@ public class AddressRequestDTO {
     private String district;
     private String province;
     private boolean isDefault;
-    private Integer shippingMethodId;
+//    private Integer shippingMethodId;
 }

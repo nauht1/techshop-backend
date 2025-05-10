@@ -186,9 +186,22 @@ public class OrderServiceImpl implements IOrderService {
     public OrderModel updateOrderStatus(Integer orderId, String status) {
         Optional<OrderEntity> order = orderRepository.findById(orderId);
         order.orElseThrow(() -> new RuntimeException("Order not found"));
-        order.get().setStatus(OrderStatus.valueOf(status));
+
+        OrderStatus newStatus = OrderStatus.valueOf(status);
+        order.get().setStatus(newStatus);
         order.get().setUpdateTime(LocalDateTime.now());
+
         OrderEntity savedOrder = orderRepository.save(order.get());
+
+        // Update payment
+        if (newStatus == OrderStatus.DELIVERED) {
+            Optional<PaymentEntity> paymentOpt = paymentRepository.findByOrder(order.get());
+            paymentOpt.ifPresent(payment -> {
+                payment.setStatus(PaymentStatus.SUCCESS);
+                payment.setUpdatedAt(LocalDateTime.now());
+                paymentRepository.save(payment);
+            });
+        }
 
         // Send notify
         String message = generateMessage(status, savedOrder);

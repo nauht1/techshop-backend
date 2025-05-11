@@ -1,6 +1,7 @@
 package hcmute.techshop.Controller.Order;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +9,7 @@ import java.util.Map;
 import hcmute.techshop.Enum.OrderStatus;
 import hcmute.techshop.Model.Order.DashboardOrderResponse;
 import hcmute.techshop.Model.Order.OrderModel;
+import hcmute.techshop.Model.Order.OrderStatsResponse;
 import hcmute.techshop.Model.Order.PlaceOrderRequest;
 import hcmute.techshop.Model.PageResponse;
 import hcmute.techshop.Model.ResponseModel;
@@ -81,6 +83,22 @@ public class OrderController {
         List<DashboardOrderResponse> orders = orderService.getOrderStatisticsBetweenDates(startDate, endDate);
         return ResponseEntity.ok(new ResponseModel(true, "Lấy đơn hàng thành công", orders));
     }
+
+    @GetMapping("/stats")
+    public ResponseEntity<ResponseModel> getOrdersByTime(
+            @RequestParam("startDate")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            LocalDateTime startDate,
+
+            @RequestParam("endDate")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            LocalDateTime endDate
+    )
+    {
+        OrderStatsResponse orders = orderService.getOrderStats(startDate, endDate);
+        return ResponseEntity.ok(new ResponseModel(true, "Lấy đơn hàng thành công", orders));
+    }
+
 }
 
 @RestController

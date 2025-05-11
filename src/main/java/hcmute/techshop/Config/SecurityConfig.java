@@ -44,7 +44,8 @@ public class SecurityConfig {
             "/api/v1/product/**",
             "/api/v1/category/**",
             "/api/v1/brand/**",
-            "/api/v1/product/search"
+            "/api/v1/product/search",
+            "/api/v1/admin/product/top-10-products"
     };
     @Bean
     public HttpCookieOauth2AuthorizationRequestRepository cookieOauth2AuthorizationRequestRepository() {

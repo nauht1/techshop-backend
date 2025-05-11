@@ -12,10 +12,7 @@ import hcmute.techshop.Enum.EventType;
 import hcmute.techshop.Enum.NotificationType;
 import hcmute.techshop.Enum.OrderStatus;
 import hcmute.techshop.Enum.PaymentStatus;
-import hcmute.techshop.Model.Order.DashboardOrderResponse;
-import hcmute.techshop.Model.Order.OrderItemModel;
-import hcmute.techshop.Model.Order.OrderModel;
-import hcmute.techshop.Model.Order.PlaceOrderRequest;
+import hcmute.techshop.Model.Order.*;
 import hcmute.techshop.Model.PageResponse;
 import hcmute.techshop.Repository.Order.DiscountRepository;
 import hcmute.techshop.Repository.Order.OrderRepository;
@@ -353,5 +350,10 @@ public class OrderServiceImpl implements IOrderService {
         }
 
         return responseList;
+    }
+
+    @Override
+    public OrderStatsResponse getOrderStats(LocalDateTime startDate, LocalDateTime endDate) {
+        return orderRepository.getOrderStatsBetween(startDate, endDate);
     }
 }

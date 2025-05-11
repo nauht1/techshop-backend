@@ -194,5 +194,18 @@ public class ProductController {
                         .body(new ResponseModel(true, "Something error", null));
             }
         }
+
+        @GetMapping("top-10-products")
+        public ResponseEntity<ResponseModel> findTop10Products() {
+            List<ProductModel> ret = productService.getTop10Products();
+
+            return ResponseEntity.ok(
+                    ResponseModel.builder()
+                            .success(true)
+                            .message("Get top 10 product successfully")
+                            .body(ret)
+                            .build()
+            );
+        }
     }
 }

@@ -2,6 +2,7 @@ package hcmute.techshop.Controller.Product;
 
 import hcmute.techshop.Model.Auth.UserModel;
 import hcmute.techshop.Model.Dashboard.TopUserDTO;
+import hcmute.techshop.Model.PageResponse;
 import hcmute.techshop.Model.Product.ProductModel;
 import hcmute.techshop.Model.ResponseModel;
 import hcmute.techshop.Service.Product.IProductService;
@@ -12,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -36,9 +38,10 @@ public class AdminDashboardController {
         );
     }
 
-    @GetMapping("top-10-users")
-    public ResponseEntity<ResponseModel> findTop10Users() {
-        List<TopUserDTO> userModels = dashboardService.getTopUsers();
+    @GetMapping("top-users")
+    public ResponseEntity<ResponseModel> findTop10Users(@RequestParam(defaultValue = "0") int page,
+                                                        @RequestParam(defaultValue = "10") int size) {
+        PageResponse<TopUserDTO> userModels = dashboardService.getTopUsers(page, size);
         return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseModel(true, "Get top 10 user successfully", userModels)
         );

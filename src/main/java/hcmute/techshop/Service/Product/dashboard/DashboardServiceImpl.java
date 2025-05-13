@@ -4,13 +4,16 @@ import hcmute.techshop.Entity.Auth.UserEntity;
 import hcmute.techshop.Enum.PaymentStatus;
 import hcmute.techshop.Model.Auth.UserModel;
 import hcmute.techshop.Model.Dashboard.TopUserDTO;
+import hcmute.techshop.Model.PageResponse;
 import hcmute.techshop.Repository.Auth.UserRepository;
 import hcmute.techshop.Service.User.IUserService;
 import hcmute.techshop.Service.User.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,12 +25,12 @@ public class DashboardServiceImpl implements IDashboardService {
     private final ModelMapper modelMapper;
 
     @Override
-    public List<TopUserDTO> getTopUsers() {
-        Pageable pageable = PageRequest.of(0, 10);
+    public PageResponse<TopUserDTO> getTopUsers(int pageNumber, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "totalAmount"));
 
-        List<Object[]> result = userRepository.findTopUser(PaymentStatus.SUCCESS, pageable);
+        Page<Object[]> pageResult = userRepository.findTopUser(PaymentStatus.SUCCESS, pageable);
 
-        return result.stream()
+        List<TopUserDTO> userDTOS = pageResult.stream()
                 .map(obj -> {
                     UserEntity user = (UserEntity) obj[0];
                     Double amountSpent = (Double) obj[1];
@@ -35,5 +38,7 @@ public class DashboardServiceImpl implements IDashboardService {
                     return new TopUserDTO(userModel, amountSpent);
                 })
                 .toList();
+
+        return new PageResponse<>(userDTOS, pageResult.getNumber(), pageResult.getTotalPages());
     }
 }

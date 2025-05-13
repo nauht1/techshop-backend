@@ -2,6 +2,7 @@ package hcmute.techshop.Repository.Auth;
 
 import hcmute.techshop.Entity.Auth.UserEntity;
 import hcmute.techshop.Enum.PaymentStatus;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -18,13 +19,12 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
     Optional<UserEntity> findById(Integer id);
 
     @Query("""
-        SELECT o.user, SUM(p.amount)
+        SELECT o.user, SUM(p.amount) as totalAmount
         FROM PaymentEntity p
         JOIN p.order o
         WHERE p.status = :SUCCESS_STATUS
         GROUP BY o.user
-        ORDER BY SUM(p.amount) DESC
     """
     )
-    List<Object[]> findTopUser(@Param("SUCCESS_STATUS") PaymentStatus status, Pageable pageable);
+    Page<Object[]> findTopUser(@Param("SUCCESS_STATUS") PaymentStatus status, Pageable pageable);
 }

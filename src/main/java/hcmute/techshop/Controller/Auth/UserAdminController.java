@@ -1,12 +1,14 @@
 package hcmute.techshop.Controller.Auth;
 
 import hcmute.techshop.Entity.Auth.UserEntity;
+import hcmute.techshop.Model.Auth.UserModel;
 import hcmute.techshop.Model.ResponseModel;
 import hcmute.techshop.Model.User.ProfileRequest;
 import hcmute.techshop.Model.User.ProfileResponse;
 import hcmute.techshop.Repository.Auth.UserRepository;
 import hcmute.techshop.Service.User.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -24,6 +26,7 @@ import java.util.Map;
 public class UserAdminController {
     private final UserRepository userRepository;
     private final UserServiceImpl userService;
+    private final ModelMapper modelMapper;
 
     @GetMapping
     public ResponseEntity<ResponseModel> getAllUsers(
@@ -38,12 +41,16 @@ public class UserAdminController {
 
             Page<UserEntity> userPage = userRepository.findAll(pageRequest);
 
+            List<UserModel> users = userPage.getContent().stream()
+                    .map(user -> modelMapper.map(user, UserModel.class))
+                    .toList();
+
             return ResponseEntity.ok(
                     ResponseModel.builder()
                             .success(true)
                             .message("Get all users successfully")
                             .body(Map.of(
-                                    "content", userPage.getContent(),
+                                    "content", users,
                                     "totalElements", userPage.getTotalElements(),
                                     "totalPages", userPage.getTotalPages(),
                                     "currentPage", userPage.getNumber()
